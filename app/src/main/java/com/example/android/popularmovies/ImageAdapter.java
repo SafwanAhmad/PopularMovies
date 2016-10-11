@@ -7,6 +7,8 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.squareup.picasso.Picasso;
+
 /**
  * Created by safwanx on 9/26/16.
  */
@@ -31,7 +33,7 @@ public class ImageAdapter extends BaseAdapter{
     }
 
     public int getCount() {
-        return mThumbIds.length;
+        return 8;
     }
 
     public Object getItem(int position) {
@@ -49,7 +51,7 @@ public class ImageAdapter extends BaseAdapter{
         if (convertView == null) {
             //if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 250));
+            imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 800));
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
             //imageView.setPadding(8,8,8,8);
         }
@@ -58,8 +60,11 @@ public class ImageAdapter extends BaseAdapter{
             imageView = (ImageView)convertView;
         }
 
-        imageView.setImageResource(mThumbIds[position]);
+        //imageView.setImageResource(mThumbIds[position]);
+        Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg").into(imageView);
 
         return imageView;
     }
+
+
 }
