@@ -1,5 +1,6 @@
 package com.example.android.popularmovies;
 
+import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -7,12 +8,15 @@ import android.view.MenuItem;
 import android.widget.GridView;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements MoviePosters.OnFragmentInteractionListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Download the movies data from server.
+        //new GetMoviesData().execute(null, null, null);
 
         //Accessing the grid view
         GridView gridView = (GridView)findViewById(R.id.main_grid_view);
@@ -41,5 +45,12 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    //Interface for the fragment
+    public void onFragmentInteraction(Uri uri)
+    {
+
     }
 }
