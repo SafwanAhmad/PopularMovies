@@ -1,28 +1,28 @@
 package com.example.android.popularmovies;
 
 import android.net.Uri;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.GridView;
 
 
-public class MainActivity extends ActionBarActivity implements MoviePosters.OnFragmentInteractionListener{
+public class MainActivity extends ActionBarActivity
+        implements MoviePostersFragment.OnFragmentInteractionListener, GetMoviesData.DownloadComplete
+{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Register itself as a listener to availability of movies data
+        GetMoviesData getMoviesData = new GetMoviesData();
+        getMoviesData.listener = this;
+
         //Download the movies data from server.
-        //new GetMoviesData().execute(null, null, null);
-
-        //Accessing the grid view
-        GridView gridView = (GridView)findViewById(R.id.main_grid_view);
-
-        //Attach a adapter with this grid view
-        gridView.setAdapter( new ImageAdapter(this));
+        getMoviesData.execute(null, null, null);
     }
 
     @Override
@@ -48,9 +48,17 @@ public class MainActivity extends ActionBarActivity implements MoviePosters.OnFr
     }
 
 
-    //Interface for the fragment
+    //callback for the fragment
     public void onFragmentInteraction(Uri uri)
     {
 
+    }
+
+    //callback for the async task
+    public void onPosterPathsAvailable(String[] posterPaths) {
+        //get the associated fragment
+        Fragment associatedFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_MoviePosters);
+        ((MoviePostersFragment)associatedFragment).mImageAdapter.setmThumbIds(posterPaths);
+        ((MoviePostersFragment) associatedFragment).mImageAdapter.notifyDataSetChanged();
     }
 }
