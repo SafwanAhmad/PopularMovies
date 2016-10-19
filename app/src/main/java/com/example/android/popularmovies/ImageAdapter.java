@@ -16,24 +16,20 @@ public class ImageAdapter extends BaseAdapter{
 
     private Context mContext;
 
+    public void setmThumbIds(String[] mThumbIds) {
+        this.mThumbIds = mThumbIds;
+    }
+
     // references to our images
-    private Integer[] mThumbIds = {
-            R.drawable.sample_1, R.drawable.sample_2,
-            R.drawable.sample_3, R.drawable.sample_4,
-            R.drawable.sample_5, R.drawable.sample_6,
-            R.drawable.sample_7, R.drawable.sample_1,
-            R.drawable.sample_2, R.drawable.sample_3,
-            R.drawable.sample_4, R.drawable.sample_5,
-            R.drawable.sample_6, R.drawable.sample_7,
-            R.drawable.sample_1, R.drawable.sample_2,
-    };
+    private String[] mThumbIds = null;
+
 
     public ImageAdapter(Context context) {
         this.mContext = context;
     }
 
     public int getCount() {
-        return 8;
+        return (mThumbIds == null ? 0 : mThumbIds.length);
     }
 
     public Object getItem(int position) {
@@ -60,11 +56,19 @@ public class ImageAdapter extends BaseAdapter{
             imageView = (ImageView)convertView;
         }
 
-        //imageView.setImageResource(mThumbIds[position]);
-        Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg").into(imageView);
+
+        if(mThumbIds != null) {
+            String url = mThumbIds[position];
+            Picasso.with(mContext).load(url).placeholder(R.drawable.default_preview)
+                    .into(imageView);
+        }
+        else {
+            Picasso.with(mContext).load(R.drawable.default_preview).into(imageView);
+        }
 
         return imageView;
     }
+
 
 
 }
