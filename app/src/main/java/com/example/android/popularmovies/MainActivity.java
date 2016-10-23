@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 public class MainActivity extends ActionBarActivity
@@ -56,9 +57,19 @@ public class MainActivity extends ActionBarActivity
 
     //callback for the async task
     public void onPosterPathsAvailable(String[] posterPaths) {
-        //get the associated fragment
-        Fragment associatedFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_MoviePosters);
-        ((MoviePostersFragment)associatedFragment).mImageAdapter.setmThumbIds(posterPaths);
-        ((MoviePostersFragment) associatedFragment).mImageAdapter.notifyDataSetChanged();
+        //TODO Add checks in async task to check network availability (and may be register itself to be notified when
+        //TODO network is available.
+        //Handle unavailability of path (due to network unavailability)
+        if(posterPaths != null) {
+            //get the associated fragment
+            Fragment associatedFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_MoviePosters);
+            ((MoviePostersFragment) associatedFragment).mImageAdapter.setmThumbIds(posterPaths);
+            ((MoviePostersFragment) associatedFragment).mImageAdapter.notifyDataSetChanged();
+        }
+        else {
+            Toast toast = Toast.makeText(this, "Nothing to display!\nCheck network!", Toast.LENGTH_LONG);
+            toast.show();
+        }
+
     }
 }

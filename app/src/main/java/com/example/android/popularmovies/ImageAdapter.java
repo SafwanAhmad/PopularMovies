@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -61,9 +62,6 @@ public class ImageAdapter extends BaseAdapter{
             String url = mThumbIds[position];
             Picasso.with(mContext).load(url).placeholder(R.drawable.default_preview)
                     .into(imageView);
-        }
-        else {
-            Picasso.with(mContext).load(R.drawable.default_preview).into(imageView);
         }
 
         return imageView;
