@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -12,18 +13,16 @@ import android.widget.Toast;
 public class MainActivity extends ActionBarActivity
         implements MoviePostersFragment.OnFragmentInteractionListener, GetMoviesData.DownloadComplete
 {
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+
+    //Reference to async task object
+    GetMoviesData mGetMoviesData = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Register itself as a listener to availability of movies data
-        GetMoviesData getMoviesData = new GetMoviesData();
-        getMoviesData.listener = this;
-
-        //Download the movies data from server.
-        getMoviesData.execute(null, null, null);
     }
 
     @Override
@@ -42,6 +41,11 @@ public class MainActivity extends ActionBarActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+        if (id == R.id.action_refresh) {
+            Log.e(LOG_TAG, "Refresh action!");
+            getMovieData();
             return true;
         }
 
@@ -71,5 +75,21 @@ public class MainActivity extends ActionBarActivity
             toast.show();
         }
 
+    }
+
+
+    //Method to launch downloading task of movie posters
+    protected void getMovieData()
+    {
+        //Register itself as a listener to availability of movies data
+        mGetMoviesData = new GetMoviesData();
+
+        if(mGetMoviesData.listener == null) {
+            mGetMoviesData.listener = this;
+        }
+
+        //The task can be executed only once (an exception will be thrown if a second execution is attempted.)
+        //Download the movies data from server.
+        mGetMoviesData.execute(null, null, null);
     }
 }
