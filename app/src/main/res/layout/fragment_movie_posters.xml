@@ -1,5 +1,6 @@
-<!--Fragment containing the grid of movies posters for the
-main page of the Popular Movie app-->
+<!--Layout for the Fragment in portrait orientation containing the
+    grid of movies posters. This will appear as the main page of the
+    Popular Movie app.-->
 
 <GridView
     xmlns:android="http://schemas.android.com/apk/res/android"
