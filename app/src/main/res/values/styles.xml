@@ -3,6 +3,14 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
     </style>
+
+    <!--Theme for the setting activity older version. We have to provide two other versions
+    of style one for v-14 and the other for v-21. Because Theme.AppCompat.Light.DarkActionBar
+    is the support library for the ActionBar. But the setting activity does not extends
+    ActionBarActivity.-->
+    <style name="SettingTheme" parent="AppTheme"></style>
 
 </resources>
