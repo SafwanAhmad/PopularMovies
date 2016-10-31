@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Action bar color-->
+    <color name="color_primary">#D50000</color>
+    <!--Notification bar color-->
+    <color name="color_primary_dark">#B71C1C</color>
+</resources>
