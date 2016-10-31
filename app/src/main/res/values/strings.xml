@@ -1,7 +1,31 @@
 <resources>
     <string name="app_name">Popular Movies</string>
 
+    <string name="title_setting_activity">Settings</string>
+
     <!--Strings used for menu items-->
     <string name="action_settings">Settings</string>
     <string name="action_refresh">Refresh</string>
+
+
+    <!--Strings used for the preferences for the Setting activity-->
+
+    <!-- Label for the sorting order preference [CHAR LIMIT=30] -->
+    <string name="pref_sorting_order">Sorting Order</string>
+
+    <!-- Key name for sorting order preference in SharedPreferences [CHAR LIMIT=NONE] -->
+    <string name="pref_sorting_order_key" translatable="false">sortOrder</string>
+
+    <!-- Label for popular option in sorting order preference [CHAR LIMIT=25] -->
+    <string name="pref_sorting_label_popular">Popular</string>
+
+    <!-- Label for top rated option in sorting order preference [CHAR LIMIT=25] -->
+    <string name="pref_sorting_label_top_rated">Top Rated</string>
+
+    <!-- Value in SharedPreferences for popular sorting order option [CHAR LIMIT=NONE] -->
+    <string name="pref_sorting_popular" translatable="false">popular</string>
+
+    <!-- Value in SharedPreferences for top rated sorting order option [CHAR LIMIT=NONE] -->
+    <string name="pref_sorting_top_rated" translatable="false">top_rated</string>
+
 </resources>
