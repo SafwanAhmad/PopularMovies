@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--This is a  landscape version for devices having smallest width = 600.-->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--This fragment is same as the one used in normal version of this
+    layout-->
+    <fragment
+        android:name="com.example.android.popularmovies.MoviePostersFragment"
+        tools:context="com.example.android.popularmovies.MoviePostersFragment"
+        android:id="@+id/fragment_MoviePosters"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        tools:layout="@layout/fragment_movie_posters">
+    </fragment>
+
+    <!--A blank frame layout to be used as the container for the detail fragment
+        which is used for two pane devices.-->
+    <FrameLayout
+        android:id="@+id/container_fragment_movie_details"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2">
+    </FrameLayout>
+
+
+</LinearLayout>
