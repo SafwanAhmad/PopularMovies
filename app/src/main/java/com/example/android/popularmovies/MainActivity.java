@@ -1,7 +1,9 @@
 package com.example.android.popularmovies;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -17,6 +19,9 @@ public class MainActivity extends ActionBarActivity
 {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
+    //Store the value for preferences so that a change can be monitored
+    private String mSortingOrder;
+
     //Reference to async task object
     GetMoviesData mGetMoviesData = null;
 
@@ -24,6 +29,12 @@ public class MainActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Get the current value of preferences
+        SharedPreferences sharedPreferences = (SharedPreferences) PreferenceManager.getDefaultSharedPreferences(this);
+        mSortingOrder = sharedPreferences.getString(
+                getString(R.string.pref_sorting_order_key),
+                getString(R.string.pref_sorting_popular));
 
         //Also start the task to download movie poster in the background
         getMovieData();
@@ -57,6 +68,26 @@ public class MainActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //Check if some preference value is changed
+        SharedPreferences sharedPreferences = (SharedPreferences) PreferenceManager.getDefaultSharedPreferences(this);
+        String newSortingOrder = sharedPreferences.getString(
+                getString(R.string.pref_sorting_order_key),
+                getString(R.string.pref_sorting_popular)
+        );
+
+        if (!newSortingOrder.equals(mSortingOrder)) {
+            //Execute the async task again
+            getMovieData();
+
+            //Update the old value
+            mSortingOrder = newSortingOrder;
+        }
+
+    }
 
     //callback for the fragment
     public void onFragmentInteraction(Uri uri)
