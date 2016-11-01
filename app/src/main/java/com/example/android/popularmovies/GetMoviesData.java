@@ -1,7 +1,10 @@
 package com.example.android.popularmovies;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -57,7 +60,15 @@ public class GetMoviesData extends AsyncTask<Void, Void, String[]> {
             final String CONTENT_TYPE = "movie";
 
             //This is set based on user preference
-            final String MOVIE_ORDER = "popular";
+            Context currentContext = (Context)listener;
+            SharedPreferences sharedPreferences = (SharedPreferences) PreferenceManager
+                    .getDefaultSharedPreferences(currentContext);
+
+
+            final String MOVIE_ORDER = sharedPreferences.getString(
+                    currentContext.getString(R.string.pref_sorting_order_key),
+                            currentContext.getString(R.string.pref_sorting_popular)
+            );
 
             final String API_KEY_PARAM = "api_key";
 
