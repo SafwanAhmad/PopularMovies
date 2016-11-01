@@ -1,4 +1,8 @@
-<!--Statically adding fragment to the main activity-->
+<?xml version="1.0" encoding="utf-8"?>
+<!--Statically adding fragment to the main activity. The layout which is
+    used by this fragment is fragment_movie_posters, that has two versions
+    of layouts one for portrait orientation and the other for the landscape
+    orientation.-->
 
 <fragment
     xmlns:android="http://schemas.android.com/apk/res/android"
