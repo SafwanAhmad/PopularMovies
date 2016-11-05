@@ -28,4 +28,11 @@
     <!-- Value in SharedPreferences for top rated sorting order option [CHAR LIMIT=NONE] -->
     <string name="pref_sorting_top_rated" translatable="false">top_rated</string>
 
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="movie_title">Movie Title</string>
+    <string name="year_of_release">2016</string>
+    <string name="running_time">120min</string>
+    <string name="movie_rating">8.1/10</string>
+    <string name="mark_favorite">FAVORITE</string>
+
 </resources>
