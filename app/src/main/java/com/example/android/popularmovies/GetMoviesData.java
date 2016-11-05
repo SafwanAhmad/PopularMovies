@@ -21,11 +21,9 @@ import java.net.URL;
 /**
  * Created by safwanx on 10/11/16.
  */
-public class GetMoviesData extends AsyncTask<Void, Void, String[]> {
+public class GetMoviesData extends AsyncTask<Void, Void, Boolean> {
 
     public final String LOG_TAG = GetMoviesData.class.getSimpleName();
-
-    public String[] posterPaths = null;
 
     //Reference to the listener for posterPathAvailable
     public DownloadComplete listener = null;
@@ -33,8 +31,9 @@ public class GetMoviesData extends AsyncTask<Void, Void, String[]> {
     //Define an interface used as a callback to share the result
     public interface DownloadComplete
     {
-        public void onPosterPathsAvailable(String[] posterPaths);
+        public void onPosterPathsAvailable(boolean downLoadCompleted);
     }
+
 
     //TODO Initially we are retriving the first page. Later we
     //TODO will add support for more pages to be retrieved.
@@ -42,7 +41,7 @@ public class GetMoviesData extends AsyncTask<Void, Void, String[]> {
     //TODO navigate back and forth.
     //TODO Finally a infinite scrolling support will be added.
     @Override
-    protected String[] doInBackground(Void... params) {
+    protected Boolean doInBackground(Void... params) {
 
         //These two are defined outside the try/catch so that
         //they can be closed inside finally block
@@ -92,7 +91,7 @@ public class GetMoviesData extends AsyncTask<Void, Void, String[]> {
 
             if (inputStream == null) {
                 //Nothing to do
-                return null;
+                return false;
             }
 
             bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -108,14 +107,14 @@ public class GetMoviesData extends AsyncTask<Void, Void, String[]> {
 
             if (stringBuffer.length() == 0) {
                 //Stream was empty no parsing required
-                return null;
+                return false;
             }
 
             //else convert the buffer data to string
             moviesInfoJson = stringBuffer.toString();
 
             //It's time to parse the JSON
-            posterPaths = getMovieDataFromJson(moviesInfoJson);
+            getMovieDataFromJson(moviesInfoJson);
 
             //Close the data stream
             inputStream.close();
@@ -123,11 +122,11 @@ public class GetMoviesData extends AsyncTask<Void, Void, String[]> {
         }
         catch (IOException iExp)
         {
-            return null;
+            return false;
         }
         catch (JSONException jEx)
         {
-            return null;
+            return false;
         }
         finally {
             //Close the streams
@@ -148,11 +147,11 @@ public class GetMoviesData extends AsyncTask<Void, Void, String[]> {
             }
 
         }
-        return posterPaths;
+        return true;
     }
 
 
-    private String[] getMovieDataFromJson(String moviesInfoJson)
+    private void getMovieDataFromJson(String moviesInfoJson)
             throws JSONException {
         //Define the JSON tags that have to be extracted from the JSON data
         final String POSTER_PATH = "poster_path";
@@ -165,27 +164,36 @@ public class GetMoviesData extends AsyncTask<Void, Void, String[]> {
         //Retrieve the JSON array of objects containing the movies information
         JSONArray moviesData = jsonObject.getJSONArray(ROOT_KEY);
 
-        //Create array for poster path
-        String[] moviePosterPaths = new String[moviesData.length()];
+        //Create array for poster path and movie ids
+        String[] posterPaths = new String[moviesData.length()];
+        int[] movieIds = new int[moviesData.length()];
+
         String basePath = "http://image.tmdb.org/t/p/w185/";
 
         //Loop over this JSON array to retrieve the each movie information
         for (int i = 0; i < moviesData.length(); i++) {
 
-            //Retrieve the poster path
+            //Retrieve the poster path and id
             JSONObject currentMovieData = moviesData.getJSONObject(i);
             String posterPath = currentMovieData.getString(POSTER_PATH);
+            int movieId = currentMovieData.getInt(MOVIE_ID);
 
-            //Add this poster path to array
-            moviePosterPaths[i] = basePath + posterPath;
+            //Add poster path and id to array
+            posterPaths[i] = basePath + posterPath;
+            movieIds[i] = movieId;
         }
-        return moviePosterPaths;
+
+        //Update the movie information at listener's end
+        ((MainActivity)listener).mPosterPaths = posterPaths;
+        ((MainActivity)listener).mMovieIds = movieIds;
     }
 
 
     @Override
-    protected void onPostExecute(String[] posterPaths) {
-        super.onPostExecute(posterPaths);
-        listener.onPosterPathsAvailable(posterPaths);
+    protected void onPostExecute(Boolean downloadComplete) {
+        super.onPostExecute(downloadComplete);
+
+
+        listener.onPosterPathsAvailable(downloadComplete);
     }
 }
