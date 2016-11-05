@@ -4,4 +4,11 @@
     <color name="color_primary">#D50000</color>
     <!--Notification bar color-->
     <color name="color_primary_dark">#B71C1C</color>
+
+    <!--Color for the movie title background-->
+    <color name="color_movie_title_background">#000000</color>
+    <!--Movie Title color-->
+    <color name="color_movie_title_text">#7FFFFFFF</color>
+    <color name="color_movie_release_year">#7F000000</color>
+    <color name="color_movie_rating">#000000</color>
 </resources>
