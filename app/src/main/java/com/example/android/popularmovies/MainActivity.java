@@ -15,7 +15,8 @@ import android.widget.Toast;
 
 
 public class MainActivity extends ActionBarActivity
-        implements MoviePostersFragment.OnFragmentInteractionListener, GetMoviesData.DownloadComplete
+        implements MoviePostersFragment.OnFragmentInteractionListener, GetMoviesData.DownloadComplete,
+    MovieDetailFragment.OnDetailFragmentInteractionListener
 {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -24,6 +25,16 @@ public class MainActivity extends ActionBarActivity
 
     //Reference to async task object
     GetMoviesData mGetMoviesData = null;
+
+    //flag to find if device supports two panes
+    private boolean mTwoPane;
+
+    //Tag for movie details fragment
+    private static final String MOVIE_DETAIL_FRAG_TAG = "MDFTAG";
+
+    //Information for the movies
+    protected String[] mPosterPaths = null;
+    protected int[] mMovieIds = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +47,22 @@ public class MainActivity extends ActionBarActivity
                 getString(R.string.pref_sorting_order_key),
                 getString(R.string.pref_sorting_popular));
 
+        //Find out if the device is sw-600dp or not? Try to find out the container
+        //defined for sw-600dp devices.
+        if (findViewById(R.id.container_fragment_movie_details) != null) {
+            mTwoPane = true;
+
+            //Attach the detail fragment to the blank container
+            getSupportFragmentManager().beginTransaction().replace(R.id.container_fragment_movie_details,
+                    new MovieDetailFragment(),
+                    MOVIE_DETAIL_FRAG_TAG).commit();
+        } else {
+
+            mTwoPane = false;
+        }
+
         //Also start the task to download movie poster in the background
+        mGetMoviesData = null;
         getMovieData();
     }
 
@@ -95,15 +121,21 @@ public class MainActivity extends ActionBarActivity
 
     }
 
+    //callback for the fragment
+    public void onDetailFragmentInteraction(Uri uri)
+    {
+
+    }
+
     //callback for the async task
-    public void onPosterPathsAvailable(String[] posterPaths) {
+    public void onPosterPathsAvailable(boolean downloadComplete) {
         //TODO Add checks in async task to check network availability (and may be register itself to be notified when
         //TODO network is available.
         //Handle unavailability of path (due to network unavailability)
-        if(posterPaths != null) {
+        if(downloadComplete != false) {
             //get the associated fragment
             Fragment associatedFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_MoviePosters);
-            ((MoviePostersFragment) associatedFragment).mImageAdapter.setmThumbIds(posterPaths);
+            ((MoviePostersFragment) associatedFragment).mImageAdapter.setmThumbIds(mPosterPaths);
             ((MoviePostersFragment) associatedFragment).mImageAdapter.notifyDataSetChanged();
         }
         else {
