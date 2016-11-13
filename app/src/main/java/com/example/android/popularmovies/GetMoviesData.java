@@ -21,7 +21,7 @@ import java.net.URL;
 /**
  * Created by safwanx on 10/11/16.
  */
-public class GetMoviesData extends AsyncTask<Void, Void, Boolean> {
+public class GetMoviesData extends AsyncTask<Void, Void, GetMoviesData.MovieData> {
 
     public final String LOG_TAG = GetMoviesData.class.getSimpleName();
 
@@ -31,7 +31,7 @@ public class GetMoviesData extends AsyncTask<Void, Void, Boolean> {
     //Define an interface used as a callback to share the result
     public interface DownloadComplete
     {
-        public void onPosterPathsAvailable(boolean downLoadCompleted);
+        public void onPosterPathsAvailable();
     }
 
 
@@ -41,13 +41,14 @@ public class GetMoviesData extends AsyncTask<Void, Void, Boolean> {
     //TODO navigate back and forth.
     //TODO Finally a infinite scrolling support will be added.
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected MovieData doInBackground(Void... params) {
 
         //These two are defined outside the try/catch so that
         //they can be closed inside finally block
 
         HttpURLConnection httpURLConnection = null;
         BufferedReader bufferedReader = null;
+        MovieData movieData = null;
 
         //Raw JSON response as a string
         String moviesInfoJson;
@@ -91,7 +92,7 @@ public class GetMoviesData extends AsyncTask<Void, Void, Boolean> {
 
             if (inputStream == null) {
                 //Nothing to do
-                return false;
+                return null;
             }
 
             bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -107,14 +108,14 @@ public class GetMoviesData extends AsyncTask<Void, Void, Boolean> {
 
             if (stringBuffer.length() == 0) {
                 //Stream was empty no parsing required
-                return false;
+                return null;
             }
 
             //else convert the buffer data to string
             moviesInfoJson = stringBuffer.toString();
 
             //It's time to parse the JSON
-            getMovieDataFromJson(moviesInfoJson);
+            movieData = getMovieDataFromJson(moviesInfoJson);
 
             //Close the data stream
             inputStream.close();
@@ -122,11 +123,11 @@ public class GetMoviesData extends AsyncTask<Void, Void, Boolean> {
         }
         catch (IOException iExp)
         {
-            return false;
+            return null;
         }
         catch (JSONException jEx)
         {
-            return false;
+            return null;
         }
         finally {
             //Close the streams
@@ -147,11 +148,11 @@ public class GetMoviesData extends AsyncTask<Void, Void, Boolean> {
             }
 
         }
-        return true;
+        return movieData;
     }
 
 
-    private void getMovieDataFromJson(String moviesInfoJson)
+    private MovieData getMovieDataFromJson(String moviesInfoJson)
             throws JSONException {
         //Define the JSON tags that have to be extracted from the JSON data
         final String POSTER_PATH = "poster_path";
@@ -183,17 +184,38 @@ public class GetMoviesData extends AsyncTask<Void, Void, Boolean> {
             movieIds[i] = movieId;
         }
 
-        //Update the movie information at listener's end
-        ((MainActivity)listener).mPosterPaths = posterPaths;
-        ((MainActivity)listener).mMovieIds = movieIds;
+        MovieData movieData = new MovieData(posterPaths, movieIds);
+
+        return movieData;
     }
 
 
     @Override
-    protected void onPostExecute(Boolean downloadComplete) {
-        super.onPostExecute(downloadComplete);
+    protected void onPostExecute(MovieData movieData) {
+        super.onPostExecute(movieData);
 
+        try {
+            //Update the movie information at listener's end
+            ((MainActivity) listener).mPosterPaths = movieData.mPosterUrl;
+            ((MainActivity) listener).mMovieIds = movieData.mMovieIds;
 
-        listener.onPosterPathsAvailable(downloadComplete);
+            listener.onPosterPathsAvailable();
+        }
+        catch (NullPointerException nEx) {
+            Log.w(LOG_TAG, "No listener found!");
+        }
+    }
+
+    // Data Structure used to pass movie data between back doInBackground method and
+    // onPostExecute method.
+    class MovieData
+    {
+        private String[] mPosterUrl;
+        private int[] mMovieIds;
+
+        public MovieData(String[] posterUrl, int[] movieIds) {
+            mPosterUrl = posterUrl;
+            mMovieIds = movieIds;
+        }
     }
 }
