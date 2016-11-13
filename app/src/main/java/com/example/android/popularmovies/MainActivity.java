@@ -1,5 +1,6 @@
 package com.example.android.popularmovies;
 
+import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -115,24 +116,61 @@ public class MainActivity extends ActionBarActivity
 
     }
 
-    //callback for the fragment
-    public void onFragmentInteraction(Uri uri)
-    {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        //Unregister from async task
+        if(mGetMoviesData != null)
+        {
+            mGetMoviesData.listener  = null;
+            mGetMoviesData.cancel(true);
+        }
+    }
+
+    //callback method, it is called by attached fragment while any item
+    // inside is clicked
+    public void onFragmentInteraction(int position) {
+        //Take out the movie id
+        String movieId = String.valueOf(mMovieIds[position]);
+
+        if (mTwoPane == true) {
+            //We want to pass the uri also to this new fragment. We will use bundle for this purpose
+            Bundle id = new Bundle();
+            id.putString(MovieDetailFragment.MOVIE_ID_KEY, movieId);
+
+            MovieDetailFragment detailFragment = new MovieDetailFragment();
+            detailFragment.setArguments(id);
+
+            getSupportFragmentManager().beginTransaction().
+                    replace(R.id.container_fragment_movie_details, detailFragment, MOVIE_DETAIL_FRAG_TAG).commit();
+        }
+
+        //If the device doesn't support two pane launch detail activity
+        //through an intent
+        else {
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.putExtra(DetailActivity.MOVIE_ID_KEY,movieId);
+            startActivity(intent);
+        }
 
     }
 
     //callback for the fragment
-    public void onDetailFragmentInteraction(Uri uri)
-    {
+    public void onDetailFragmentInteraction(String[] movieDetails) {
 
+        final FragmentTransaction ft =  getSupportFragmentManager().beginTransaction();
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(MOVIE_DETAIL_FRAG_TAG);
+
+        ft.detach(fragment).attach(fragment).commit();
     }
 
     //callback for the async task
-    public void onPosterPathsAvailable(boolean downloadComplete) {
+    public void onPosterPathsAvailable() {
         //TODO Add checks in async task to check network availability (and may be register itself to be notified when
         //TODO network is available.
         //Handle unavailability of path (due to network unavailability)
-        if(downloadComplete != false) {
+        if(mPosterPaths != null) {
             //get the associated fragment
             Fragment associatedFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_MoviePosters);
             ((MoviePostersFragment) associatedFragment).mImageAdapter.setmThumbIds(mPosterPaths);
