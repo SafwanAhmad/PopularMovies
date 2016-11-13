@@ -54,8 +54,9 @@ public class MoviePostersFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                //For debugging purpose
                 Toast.makeText(getActivity(),"Item["+position+"] clicked!", Toast.LENGTH_SHORT).show();
+                onButtonPressed(position);
             }
         });
 
@@ -63,9 +64,9 @@ public class MoviePostersFragment extends Fragment {
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    public void onButtonPressed(int position) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+            mListener.onFragmentInteraction(position);
         }
     }
 
@@ -98,7 +99,7 @@ public class MoviePostersFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        public void onFragmentInteraction(int position);
     }
 
 }
