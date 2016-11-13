@@ -1,96 +1,107 @@
-<ScrollView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.example.android.popularmovies.MovieDetailFragment">
 
-    <!--Scroll view can contain only single child-->
-    <LinearLayout
+    <!--Title of the movie-->
+    <TextView
+        android:id="@+id/movie_title"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:textColor="@color/color_movie_title_text"
+        android:paddingLeft="16dp"
+        android:textSize="42dp"
+        android:background="@color/color_movie_title_background"
+        android:visibility="gone"/>
 
-        <!--Title of the movie-->
-        <TextView
-            android:id="@+id/movie_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/movie_title"
-            android:textColor="@color/color_movie_title_text"
-            android:paddingLeft="16dp"
-            android:textSize="42dp"
-            android:background="@color/color_movie_title_background"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <!--Layout containing poster thumbnail, year of release, running
-        time, ratings, mark as favorite button-->
+        <!--Scroll view can contain only single child-->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:orientation="vertical">
 
-            <!--Poster thumbnail-->
-            <ImageView
-                android:id="@+id/movie_poster"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/default_preview"/>
-
+            <!--Layout containing poster thumbnail, year of release, running
+            time, ratings, mark as favorite button-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal">
+                android:paddingTop="2dp"
+                android:paddingLeft="2dp"
+                android:orientation="horizontal">
 
-                <!--Year of release-->
-                <TextView
-                    android:id="@+id/release_date"
-                    android:layout_width="wrap_content"
+                <!--Poster thumbnail-->
+                <ImageView
+                    android:id="@+id/movie_poster"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/color_movie_release_year"
-                    android:textSize="36dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/year_of_release"/>
+                    android:layout_weight="1"/>
 
-                <!--Running time-->
-                <TextView
-                    android:id="@+id/running_time"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/color_movie_release_year"
-                    android:textSize="24dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/running_time"/>
+                    android:layout_weight="2"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="16dp">
 
-                <!--Movie Rating-->
-                <TextView
-                    android:id="@+id/vote_average"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/color_movie_rating"
-                    android:textSize="22dp"
-                    android:text="@string/movie_rating"/>
+                    <!--Year of release-->
+                    <TextView
+                        android:id="@+id/release_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/color_movie_release_year"
+                        android:textSize="36dp"
+                        android:fontFamily="sans-serif-condensed"/>
 
-                <!--Mark as favorite button-->
-                <!--TODO make the button funcitonal-->
-                <Button
-                    android:id="@+id/mark_favorite"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/mark_favorite"/>
+                    <!--Running time-->
+                    <TextView
+                        android:id="@+id/running_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/color_movie_release_year"
+                        android:textSize="24dp"
+                        android:fontFamily="sans-serif-condensed"/>
 
+                    <!--Movie Rating-->
+                    <TextView
+                        android:id="@+id/vote_average"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/color_movie_rating"
+                        android:textSize="22dp"/>
+
+                    <!--Mark as favorite button-->
+                    <!--TODO make the button funcitonal-->
+                    <Button
+                        android:id="@+id/mark_favorite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/color_movie_title_background"
+                        android:textColor="@color/color_movie_title_text"
+                        android:visibility="gone"
+                        android:text="@string/mark_favorite"/>
+
+
+                </LinearLayout>
 
             </LinearLayout>
 
+            <!--Movie Description-->
+            <TextView
+                android:id="@+id/movie_plot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="22sp"/>
+
         </LinearLayout>
 
-        <!--Movie Description-->
-        <TextView
-            android:id="@+id/movie_plot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-</ScrollView>
+    </ScrollView>
+</LinearLayout>
