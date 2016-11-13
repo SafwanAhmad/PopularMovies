@@ -1,4 +1,5 @@
-<resources>
+<resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
+
     <string name="app_name">Popular Movies</string>
 
     <string name="title_setting_activity">Settings</string>
@@ -29,10 +30,14 @@
     <string name="pref_sorting_top_rated" translatable="false">top_rated</string>
 
 <!-- TODO: Remove or change this placeholder text -->
-    <string name="movie_title">Movie Title</string>
     <string name="year_of_release">2016</string>
-    <string name="running_time">120min</string>
-    <string name="movie_rating">8.1/10</string>
+    <string name="running_time"><xliff:g id = "running_time">%1$s</xliff:g>min</string>
+    <string name="movie_rating"><xliff:g id = "movie_rating">%1$s</xliff:g>/10</string>
     <string name="mark_favorite">FAVORITE</string>
+
+
+
+
+    <string name="title_activity_detail">Movie Details</string>
 
 </resources>
