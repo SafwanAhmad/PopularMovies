@@ -30,11 +30,11 @@
     <string name="pref_sorting_top_rated" translatable="false">top_rated</string>
 
     <!-- String values used in detail page -->
-    <string name="running_time"><xliff:g id = "running_time">%1$s</xliff:g>min</string>
-    <string name="movie_rating"><xliff:g id = "movie_rating">%1$s</xliff:g>/10</string>
+
+
+    <string name="running_time"><xliff:g id="running_time">%1$s</xliff:g>min</string>
+    <string name="movie_rating"><xliff:g id="movie_rating">%1$s</xliff:g>/10</string>
     <string name="mark_favorite">FAVORITE</string>
-
-
 
 
     <string name="title_activity_detail">Movie Details</string>
