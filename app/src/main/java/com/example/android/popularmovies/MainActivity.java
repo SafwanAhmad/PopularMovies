@@ -1,24 +1,24 @@
 package com.example.android.popularmovies;
 
-import android.support.v4.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.GridView;
 import android.widget.Toast;
 
 
-public class MainActivity extends ActionBarActivity
+public class MainActivity extends AppCompatActivity
         implements MoviePostersFragment.OnFragmentInteractionListener, GetMoviesData.DownloadComplete,
-    MovieDetailFragment.OnDetailFragmentInteractionListener
-{
+        MovieDetailFragment.OnDetailFragmentInteractionListener {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     //Store the value for preferences so that a change can be monitored
@@ -83,7 +83,7 @@ public class MainActivity extends ActionBarActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            startActivity(new Intent(this,SettingActivity.class));
+            startActivity(new Intent(this, SettingActivity.class));
             return true;
         }
         if (id == R.id.action_refresh) {
@@ -121,9 +121,8 @@ public class MainActivity extends ActionBarActivity
         super.onDestroy();
 
         //Unregister from async task
-        if(mGetMoviesData != null)
-        {
-            mGetMoviesData.listener  = null;
+        if (mGetMoviesData != null) {
+            mGetMoviesData.listener = null;
             mGetMoviesData.cancel(true);
         }
     }
@@ -150,7 +149,7 @@ public class MainActivity extends ActionBarActivity
         //through an intent
         else {
             Intent intent = new Intent(this, DetailActivity.class);
-            intent.putExtra(DetailActivity.MOVIE_ID_KEY,movieId);
+            intent.putExtra(DetailActivity.MOVIE_ID_KEY, movieId);
             startActivity(intent);
         }
 
@@ -159,7 +158,7 @@ public class MainActivity extends ActionBarActivity
     //callback for the fragment
     public void onDetailFragmentInteraction(String[] movieDetails) {
 
-        final FragmentTransaction ft =  getSupportFragmentManager().beginTransaction();
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(MOVIE_DETAIL_FRAG_TAG);
 
         ft.detach(fragment).attach(fragment).commit();
@@ -167,17 +166,13 @@ public class MainActivity extends ActionBarActivity
 
     //callback for the async task
     public void onPosterPathsAvailable() {
-        //TODO Add checks in async task to check network availability (and may be register itself to be notified when
-        //TODO network is available.
-        //Handle unavailability of path (due to network unavailability)
-        if(mPosterPaths != null) {
+        if (mPosterPaths != null) {
             //get the associated fragment
             Fragment associatedFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_MoviePosters);
             ((MoviePostersFragment) associatedFragment).mImageAdapter.setmThumbIds(mPosterPaths);
             ((MoviePostersFragment) associatedFragment).mImageAdapter.notifyDataSetChanged();
-        }
-        else {
-            Toast toast = Toast.makeText(this, "Nothing to display!\nCheck network!", Toast.LENGTH_LONG);
+        } else {
+            Toast toast = Toast.makeText(this, "Nothing to display!", Toast.LENGTH_LONG);
             toast.show();
         }
 
@@ -185,17 +180,28 @@ public class MainActivity extends ActionBarActivity
 
 
     //Method to launch downloading task of movie posters
-    protected void getMovieData()
-    {
-        //Register itself as a listener to availability of movies data
-        mGetMoviesData = new GetMoviesData();
+    protected void getMovieData() {
 
-        if(mGetMoviesData.listener == null) {
-            mGetMoviesData.listener = this;
+        //Before moving further, check if network is available or not
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if (isConnected) {
+            //Register itself as a listener to availability of movies data
+            mGetMoviesData = new GetMoviesData();
+
+            if (mGetMoviesData.listener == null) {
+                mGetMoviesData.listener = this;
+            }
+
+            //The task can be executed only once (an exception will be thrown if a second execution is attempted.)
+            //Download the movies data from server.
+            mGetMoviesData.execute(null, null, null);
+        } else {
+            Toast toast = Toast.makeText(this, "Network not available!", Toast.LENGTH_LONG);
+            toast.show();
         }
-
-        //The task can be executed only once (an exception will be thrown if a second execution is attempted.)
-        //Download the movies data from server.
-        mGetMoviesData.execute(null, null, null);
     }
 }
