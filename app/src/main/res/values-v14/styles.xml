@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!--There is a workaround for the bug with Preference Fragment Compat used for preference. We have to add
+    preferenceTheme to fix that.
+    Since the v14 lib requires the min SDK to be set to 14 or higher, we have to use an Android Studio
+    recommended hack: we will override the library's requirements. To do this, you have to add the following
+    line to your manifest:
+    uses-sdk xmlns:tools="http://schemas.android.com/tools"
+    tools:overrideLibrary="android.support.v14.preference"-->
+
 <resources>
     <!-- Settings activity theme for the version 14. -->
-    <style name="SettingTheme" parent="@android:style/Theme.Holo.Light.DarkActionBar">
+    <style name="SettingTheme" parent="AppTheme">
         <item name="android:actionBarStyle">@style/ActionBar.V14.Sunshine.NoTitle</item>
+        <item name="preferenceTheme">@style/MyPreferenceTheme</item>
     </style>
 
     <!-- Settings activity action bar styles -->
-    <style name="ActionBar.V14.Sunshine.NoTitle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+    <style name="ActionBar.V14.Sunshine.NoTitle" parent="AppTheme">
         <item name="android:background">@color/color_primary</item>
         <item name="android:height">56dp</item>
     </style>
+
+    <style name="MyPreferenceTheme" parent="@style/PreferenceThemeOverlay.v14.Material"></style>
 </resources>
