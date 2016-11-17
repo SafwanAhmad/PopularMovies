@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <!-- Settings activity theme for the version 21. -->
-    <style name="SettingTheme" parent="@android:style/Theme.Material.Light.DarkActionBar">
+    <!-- Settings activity theme for the version 21. preferenceTheme is needed to resolve the
+     bug that is there while using PreferenceFragmentCompat. For This version we use style/PreferenceOverlay-->
+    <style name="SettingTheme" parent="AppTheme">
         <item name="android:colorPrimary">@color/color_primary</item>
         <item name="android:colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="preferenceTheme">@style/MyPreferenceTheme</item>
+    </style>
+
+    <style name="MyPreferenceTheme" parent="@style/PreferenceThemeOverlay">
     </style>
 </resources>
