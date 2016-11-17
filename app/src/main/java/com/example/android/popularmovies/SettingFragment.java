@@ -20,14 +20,15 @@ public class SettingFragment extends PreferenceFragmentCompat implements Prefere
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        //Load the preferences from an XML resource
-        addPreferencesFromResource(R.xml.general_prefs);
+
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().setTheme(R.style.SettingTheme);
+
+        //Load the preferences from an XML resource
+        addPreferencesFromResource(R.xml.general_prefs);
 
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_sorting_order_key)));
     }
