@@ -15,7 +15,7 @@
     <ListPreference
         android:title="@string/pref_sorting_order"
         android:key="@string/pref_sorting_order_key"
-        android:defaultValue="@string/pref_sorting_label_popular"
+        android:defaultValue="@string/pref_sorting_popular"
         android:entryValues="@array/pref_sorting_values"
         android:entries="@array/pref_sorting_options"/>
 
