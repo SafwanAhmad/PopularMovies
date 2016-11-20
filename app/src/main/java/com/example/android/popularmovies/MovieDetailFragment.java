@@ -24,6 +24,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +35,23 @@ import java.util.Date;
  * to handle interaction events.
  */
 public class MovieDetailFragment extends Fragment implements GetMovieDetails.DownloadComplete {
+
+    //Jake Wharton's Butterknife library can make binding views a lot easier!
+    //Take a look - http://jakewharton.github.io/butterknife/
+    @BindView(R.id.movie_title)
+    TextView mTitle;
+    @BindView(R.id.movie_poster)
+    ImageView mPoster;
+    @BindView(R.id.release_date)
+    TextView mReleaseDate;
+    @BindView(R.id.running_time)
+    TextView mRunningTime;
+    @BindView(R.id.vote_average)
+    TextView mVoteAverage;
+    @BindView(R.id.movie_plot)
+    TextView mMoviePlot;
+    @BindView(R.id.mark_favorite)
+    Button mMarkFavorite;
 
     public static final String MOVIE_ID_KEY = "MOVIE_ID";
 
@@ -68,33 +88,32 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
+        ButterKnife.bind(this, rootView);
 
         //if the view data is available them update them
         if (viewData != null) {
             //Update the title
-            TextView title = (TextView) rootView.findViewById(R.id.movie_title);
-            title.setText(viewData[0]);
+            mTitle.setText(viewData[0]);
 
             //Also make it visible
-            title.setVisibility(Button.VISIBLE);
+            mTitle.setVisibility(Button.VISIBLE);
 
             //Update the poster
-            ImageView poster = (ImageView) rootView.findViewById(R.id.movie_poster);
 
             //Calculate the height(in pixels) for the image for different devices.
             Resources resources = getActivity().getResources();
             float heightPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 280, resources.getDisplayMetrics());
 
-            poster.setAdjustViewBounds(true);
+            mPoster.setAdjustViewBounds(true);
 
-            poster.setMaxHeight((int) heightPx);
+            mPoster.setMaxHeight((int) heightPx);
 
-            poster.setScaleType(ImageView.ScaleType.FIT_XY);
+            mPoster.setScaleType(ImageView.ScaleType.FIT_XY);
 
             Picasso.with(getActivity())
                     .load(viewData[1])
                     .placeholder(R.drawable.default_preview)
-                    .into(poster);
+                    .into(mPoster);
 
             //Update the year of release
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -110,24 +129,19 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
             calendar.setTime(releaseDate);
 
 
-            ((TextView) rootView.findViewById(R.id.release_date))
-                    .setText(String.valueOf(calendar.get(Calendar.YEAR)));
+            mReleaseDate.setText(String.valueOf(calendar.get(Calendar.YEAR)));
 
             //Update the running time
-            ((TextView) rootView.findViewById(R.id.running_time))
-                    .setText(getActivity().getString(R.string.running_time, viewData[3]));
+            mRunningTime.setText(getActivity().getString(R.string.running_time, viewData[3]));
 
             //Update the vote average
-            ((TextView) rootView.findViewById(R.id.vote_average))
-                    .setText(getActivity().getString(R.string.movie_rating, viewData[4]));
+            mVoteAverage.setText(getActivity().getString(R.string.movie_rating, viewData[4]));
 
             //Update the Description
-            ((TextView) rootView.findViewById(R.id.movie_plot))
-                    .setText(viewData[5]);
+            mMoviePlot.setText(viewData[5]);
 
             //Set the visibility for the favorite button
-            ((Button) rootView.findViewById(R.id.mark_favorite))
-                    .setVisibility(Button.VISIBLE);
+            mMarkFavorite.setVisibility(Button.VISIBLE);
         }
         return rootView;
 
@@ -181,7 +195,6 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnDetailFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onDetailFragmentInteraction(String[] movieDetails);
     }
 
@@ -213,7 +226,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
             //The task can be executed only once (an exception will be thrown if a second execution is attempted.)
             //Download the movies data from server.
             mGetMovieDetails.execute(Integer.parseInt(movieId));
-        }else {
+        } else {
             Toast toast = Toast.makeText(getActivity(), "Network not available!", Toast.LENGTH_LONG);
             toast.show();
         }
