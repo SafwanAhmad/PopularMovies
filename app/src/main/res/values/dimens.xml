@@ -2,4 +2,7 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!--Height in dp for the posters used for the main page and detail page-->
+    <dimen name="poster_height_dp">280dp</dimen>
 </resources>
