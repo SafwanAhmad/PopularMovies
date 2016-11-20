@@ -1,11 +1,12 @@
 package com.example.android.popularmovies;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Resources;
-import android.net.Uri;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,10 +14,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,9 +31,9 @@ import java.util.Date;
  * {@link MovieDetailFragment.OnDetailFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class MovieDetailFragment extends Fragment implements GetMovieDetails.DownloadComplete{
+public class MovieDetailFragment extends Fragment implements GetMovieDetails.DownloadComplete {
 
-    public static final String MOVIE_ID_KEY =  "MOVIE_ID";
+    public static final String MOVIE_ID_KEY = "MOVIE_ID";
 
     //Reference to the async task object
     GetMovieDetails mGetMovieDetails = null;
@@ -69,7 +70,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
         //if the view data is available them update them
-        if(viewData != null) {
+        if (viewData != null) {
             //Update the title
             TextView title = (TextView) rootView.findViewById(R.id.movie_title);
             title.setText(viewData[0]);
@@ -78,7 +79,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
             title.setVisibility(Button.VISIBLE);
 
             //Update the poster
-            ImageView poster = (ImageView)rootView.findViewById(R.id.movie_poster);
+            ImageView poster = (ImageView) rootView.findViewById(R.id.movie_poster);
 
             //Calculate the height(in pixels) for the image for different devices.
             Resources resources = getActivity().getResources();
@@ -86,7 +87,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
 
             poster.setAdjustViewBounds(true);
 
-            poster.setMaxHeight((int)heightPx);
+            poster.setMaxHeight((int) heightPx);
 
             poster.setScaleType(ImageView.ScaleType.FIT_XY);
 
@@ -99,11 +100,9 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date releaseDate = null;
 
-            try{
-                releaseDate = (Date)dateFormat.parse(viewData[2]);
-            }
-            catch (ParseException pEx)
-            {
+            try {
+                releaseDate = (Date) dateFormat.parse(viewData[2]);
+            } catch (ParseException pEx) {
 
             }
 
@@ -115,20 +114,20 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
                     .setText(String.valueOf(calendar.get(Calendar.YEAR)));
 
             //Update the running time
-            ((TextView)rootView.findViewById(R.id.running_time))
-                    .setText(getActivity().getString(R.string.running_time,viewData[3]));
+            ((TextView) rootView.findViewById(R.id.running_time))
+                    .setText(getActivity().getString(R.string.running_time, viewData[3]));
 
             //Update the vote average
-            ((TextView)rootView.findViewById(R.id.vote_average))
-                    .setText(getActivity().getString(R.string.movie_rating,viewData[4]));
+            ((TextView) rootView.findViewById(R.id.vote_average))
+                    .setText(getActivity().getString(R.string.movie_rating, viewData[4]));
 
             //Update the Description
-            ((TextView)rootView.findViewById(R.id.movie_plot))
+            ((TextView) rootView.findViewById(R.id.movie_plot))
                     .setText(viewData[5]);
 
             //Set the visibility for the favorite button
-            ((Button)rootView.findViewById(R.id.mark_favorite))
-            .setVisibility(Button.VISIBLE);
+            ((Button) rootView.findViewById(R.id.mark_favorite))
+                    .setVisibility(Button.VISIBLE);
         }
         return rootView;
 
@@ -165,8 +164,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         super.onDestroy();
 
         //Unregister from async task
-        if(mGetMovieDetails != null)
-        {
+        if (mGetMovieDetails != null) {
             mGetMovieDetails.listener = null;
             mGetMovieDetails.cancel(true);
         }
@@ -188,27 +186,38 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
     }
 
 
-    public void onMovieDetailAvailable(String[] movieDetails)
-    {
+    public void onMovieDetailAvailable(String[] movieDetails) {
         viewData = movieDetails;
         //Forward the update to parent activity
         Activity parentActivity = getActivity();
-        ((OnDetailFragmentInteractionListener)parentActivity ).onDetailFragmentInteraction(movieDetails);
+        ((OnDetailFragmentInteractionListener) parentActivity).onDetailFragmentInteraction(movieDetails);
     }
 
     protected void getMovieDetail(String movieId) {
 
-        mGetMovieDetails = new GetMovieDetails();
+        //Before moving further, check if network is available or not
+        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
 
-        //Register itself as a listener to availability of movie details
-        if(mGetMovieDetails.listener == null) {
-            mGetMovieDetails.listener = this;
+        if (isConnected) {
+            mGetMovieDetails = new GetMovieDetails();
+
+            //Register itself as a listener to availability of movie details
+            if (mGetMovieDetails.listener == null) {
+                mGetMovieDetails.listener = this;
+            }
+
+
+            //The task can be executed only once (an exception will be thrown if a second execution is attempted.)
+            //Download the movies data from server.
+            mGetMovieDetails.execute(Integer.parseInt(movieId));
+        }else {
+            Toast toast = Toast.makeText(getActivity(), "Network not available!", Toast.LENGTH_LONG);
+            toast.show();
         }
 
-
-        //The task can be executed only once (an exception will be thrown if a second execution is attempted.)
-        //Download the movies data from server.
-        mGetMovieDetails.execute(Integer.parseInt(movieId));
     }
 
 }
