@@ -8,14 +8,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
 /**
  * Created by safwanx on 9/26/16.
  */
-public class ImageAdapter extends BaseAdapter{
+public class ImageAdapter extends BaseAdapter {
 
     private Context mContext;
 
@@ -53,19 +52,18 @@ public class ImageAdapter extends BaseAdapter{
 
             //Calculate the height(in pixels) for the image for different devices.
             Resources resources = mContext.getResources();
-            float heightPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 280, resources.getDisplayMetrics());
+            float heightPx = TypedValue
+                    .applyDimension(TypedValue.COMPLEX_UNIT_DIP, R.dimen.poster_height_dp, resources.getDisplayMetrics());
 
-            imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int)heightPx));
+            imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) heightPx));
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
             //imageView.setPadding(8,8,8,8);
-        }
-        else
-        {
-            imageView = (ImageView)convertView;
+        } else {
+            imageView = (ImageView) convertView;
         }
 
 
-        if(mThumbIds != null) {
+        if (mThumbIds != null) {
             String url = mThumbIds[position];
             Picasso.with(mContext).load(url).placeholder(R.drawable.default_preview)
                     .into(imageView);
@@ -73,7 +71,6 @@ public class ImageAdapter extends BaseAdapter{
 
         return imageView;
     }
-
 
 
 }
