@@ -1,5 +1,6 @@
 package com.example.android.popularmovies;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -55,9 +56,13 @@ public class GetMoviesData extends AsyncTask<Void, Void, GetMoviesData.MovieData
 
         try
         {
-            final String MOVIE_BASE_URL = "https://api.themoviedb.org";
+            Uri.Builder builder = new Uri.Builder();
+
+            final String SCHEME = "https";
+            final String AUTHORITY = "api.themoviedb.org";
             final String API_VERSION = "3";
             final String CONTENT_TYPE = "movie";
+            final String API_KEY_PARAM = "api_key";
 
             //This is set based on user preference
             Context currentContext = (Context)listener;
@@ -70,9 +75,10 @@ public class GetMoviesData extends AsyncTask<Void, Void, GetMoviesData.MovieData
                             currentContext.getString(R.string.pref_sorting_popular)
             );
 
-            final String API_KEY_PARAM = "api_key";
 
-            Uri uri = Uri.parse(MOVIE_BASE_URL).buildUpon()
+
+            Uri uri = builder.scheme(SCHEME)
+                    .authority(AUTHORITY)
                     .appendPath(API_VERSION)
                     .appendPath(CONTENT_TYPE)
                     .appendPath(MOVIE_ORDER)
@@ -169,7 +175,7 @@ public class GetMoviesData extends AsyncTask<Void, Void, GetMoviesData.MovieData
         String[] posterPaths = new String[moviesData.length()];
         int[] movieIds = new int[moviesData.length()];
 
-        String basePath = "http://image.tmdb.org/t/p/w185/";
+        String basePath = ((Activity)listener).getString(R.string.poster_base_path);
 
         //Loop over this JSON array to retrieve the each movie information
         for (int i = 0; i < moviesData.length(); i++) {
