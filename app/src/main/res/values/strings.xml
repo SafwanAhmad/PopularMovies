@@ -39,4 +39,7 @@
 
     <string name="title_activity_detail">Movie Details</string>
 
+    <!--String representation of base path for movie poster-->
+    <string name="poster_base_path">http://image.tmdb.org/t/p/w185/</string>
+
 </resources>
