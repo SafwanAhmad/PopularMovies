@@ -1,13 +1,10 @@
 package com.example.android.popularmovies;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -49,25 +46,31 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, String[]> {
         int movieId = params[0];
 
         //Raw JSON response as a string
-        String moviesInfoJson;
+        String movieDetailsJson;
 
         //This is how the URL should look like to get details for a movie
-        //https://api.themoviedb.org/3/movie/157336?api_key={api_key}
+        //https://api.themoviedb.org/3/movie/157336?api_key={api_key}&
+        //&append_to_response=videos,reviews
 
         try
         {
-            final String MOVIE_BASE_URL = "https://api.themoviedb.org";
-            final String API_VERSION = "3";
+            Uri.Builder builder = new Uri.Builder();
+
+            final String SCHEME = "https";
+            final String AUTHORITY = "api.themoviedb.org";
+            final String VERSION = "3";
             final String CONTENT_TYPE = "movie";
-
-
             final String API_KEY_PARAM = "api_key";
+            final String RESPONSE_STRING_KEY = "append_to_response";
+            final String[] RESPONSE_STRING = {"videos","reviews"};
 
-            Uri uri = Uri.parse(MOVIE_BASE_URL).buildUpon()
-                    .appendPath(API_VERSION)
+            Uri uri = builder.scheme(SCHEME)
+                    .authority(AUTHORITY)
+                    .appendPath(VERSION)
                     .appendPath(CONTENT_TYPE)
                     .appendPath(String.valueOf(movieId))
                     .appendQueryParameter(API_KEY_PARAM, BuildConfig.OPEN_MOVIE_API_KEY)
+                    .appendQueryParameter(RESPONSE_STRING_KEY, RESPONSE_STRING[0]+","+RESPONSE_STRING[1])
                     .build();
 
             URL url = new URL(uri.toString());
@@ -103,10 +106,10 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, String[]> {
             }
 
             //else convert the buffer data to string
-            moviesInfoJson = stringBuffer.toString();
+            movieDetailsJson = stringBuffer.toString();
 
             //It's time to parse the JSON
-            movieData = getMovieDataFromJson(moviesInfoJson);
+            movieData = getMovieDataFromJson(movieDetailsJson);
 
             //Close the data stream
             inputStream.close();
@@ -153,7 +156,8 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, String[]> {
         final String VOTE_AVERAGE = "vote_average";
 
         final String MOVIE_OVERVIEW = "overview";
-        String basePath = "http://image.tmdb.org/t/p/w185/";
+
+        String basePath = ((Fragment)listener).getActivity().getString(R.string.poster_base_path);
 
         //Create array for movie information
         String[] movieDetails = new String[6];
