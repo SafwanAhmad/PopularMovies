@@ -9,8 +9,8 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:numColumns="auto_fit"
-    android:verticalSpacing="2dp"
-    android:horizontalSpacing="2dp"
+    android:verticalSpacing="@dimen/fragment_movie_posters_main_grid_view_vertical_spacing"
+    android:horizontalSpacing="@dimen/fragment_movie_posters_main_grid_view_horizontal_spacing"
     android:gravity="center">
 
 </GridView>
