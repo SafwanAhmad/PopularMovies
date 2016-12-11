@@ -53,7 +53,9 @@ public class ImageAdapter extends BaseAdapter {
             //Calculate the height(in pixels) for the image for different devices.
             Resources resources = mContext.getResources();
             float heightPx = TypedValue
-                    .applyDimension(TypedValue.COMPLEX_UNIT_DIP, R.dimen.poster_height_dp, resources.getDisplayMetrics());
+                    .applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                            mContext.getResources().getInteger(R.integer.poster_height_dp),
+                            resources.getDisplayMetrics());
 
             imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) heightPx));
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
