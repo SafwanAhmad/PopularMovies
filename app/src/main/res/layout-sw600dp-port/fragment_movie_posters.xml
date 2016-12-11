@@ -8,9 +8,9 @@
     android:id="@+id/main_grid_view"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:numColumns="1"
-    android:verticalSpacing="2dp"
-    android:horizontalSpacing="2dp"
+    android:numColumns="@integer/fragment_movie_posters_main_grid_view_num_columns"
+    android:verticalSpacing="@dimen/fragment_movie_posters_main_grid_view_vertical_spacing"
+    android:horizontalSpacing="@dimen/fragment_movie_posters_main_grid_view_horizontal_spacing"
     android:gravity="center">
 
 </GridView>
