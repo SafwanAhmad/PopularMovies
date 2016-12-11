@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--Height in dp for the posters used for the main page and detail page-->
+    <integer name="poster_height_dp">280</integer>
+
+    <integer name="image_poster_layout_weight">1</integer>
+    <!--Layout containing year of release, running
+            time, ratings, mark as favorite button-->
+    <integer name="inner_container_layout_weight">2</integer>
+
+</resources>
