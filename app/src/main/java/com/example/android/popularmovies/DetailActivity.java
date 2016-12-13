@@ -8,7 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class DetailActivity extends AppCompatActivity implements MovieDetailFragment.OnDetailFragmentInteractionListener {
+public class DetailActivity extends AppCompatActivity implements MovieDetailFragment.OnMovieDetailsUpdatedListener {
 
     public static final String MOVIE_ID_KEY = "MOVIE_ID";
 
@@ -58,7 +58,7 @@ public class DetailActivity extends AppCompatActivity implements MovieDetailFrag
     }
 
     @Override
-    public void onDetailFragmentInteraction(String[] movieDetails) {
+    public void onMovieDetailsUpdated(String[] movieDetails) {
         final FragmentTransaction ft =  getSupportFragmentManager().beginTransaction();
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(MOVIE_DETAIL_FRAG_TAG);
 
