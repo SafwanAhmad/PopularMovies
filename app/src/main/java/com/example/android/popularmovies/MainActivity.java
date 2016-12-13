@@ -17,8 +17,8 @@ import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity
-        implements MoviePostersFragment.OnFragmentInteractionListener, GetMoviesData.DownloadComplete,
-        MovieDetailFragment.OnDetailFragmentInteractionListener {
+        implements MoviePostersFragment.OnGridItemClickedListener, GetMoviesData.DownloadComplete,
+        MovieDetailFragment.OnMovieDetailsUpdatedListener {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     //Store the value for preferences so that a change can be monitored
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity
 
     //callback method, it is called by attached fragment while any item
     // inside is clicked
-    public void onFragmentInteraction(int position) {
+    public void onMoviePosterClicked(int position) {
         //Take out the movie id
         String movieId = String.valueOf(mMovieIds[position]);
 
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     //callback for the fragment
-    public void onDetailFragmentInteraction(String[] movieDetails) {
+    public void onMovieDetailsUpdated(String[] movieDetails) {
 
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(MOVIE_DETAIL_FRAG_TAG);
