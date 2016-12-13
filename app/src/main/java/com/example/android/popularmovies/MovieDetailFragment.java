@@ -32,7 +32,7 @@ import butterknife.ButterKnife;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link MovieDetailFragment.OnDetailFragmentInteractionListener} interface
+ * {@link OnMovieDetailsUpdatedListener} interface
  * to handle interaction events.
  */
 public class MovieDetailFragment extends Fragment implements GetMovieDetails.DownloadComplete {
@@ -63,7 +63,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
     String[] viewData = null;
 
 
-    private OnDetailFragmentInteractionListener mListener;
+    private OnMovieDetailsUpdatedListener mListener;
 
     public MovieDetailFragment() {
         // Required empty public constructor
@@ -151,7 +151,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(String[] movieDetails) {
         if (mListener != null) {
-            mListener.onDetailFragmentInteraction(movieDetails);
+            mListener.onMovieDetailsUpdated(movieDetails);
         }
     }
 
@@ -159,10 +159,10 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (OnDetailFragmentInteractionListener) activity;
+            mListener = (OnMovieDetailsUpdatedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnGridItemClickedListener");
         }
     }
 
@@ -195,8 +195,8 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnDetailFragmentInteractionListener {
-        public void onDetailFragmentInteraction(String[] movieDetails);
+    public interface OnMovieDetailsUpdatedListener {
+        public void onMovieDetailsUpdated(String[] movieDetails);
     }
 
 
@@ -204,7 +204,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         viewData = movieDetails;
         //Forward the update to parent activity
         Activity parentActivity = getActivity();
-        ((OnDetailFragmentInteractionListener) parentActivity).onDetailFragmentInteraction(movieDetails);
+        ((OnMovieDetailsUpdatedListener) parentActivity).onMovieDetailsUpdated(movieDetails);
     }
 
     protected void getMovieDetail(String movieId) {
