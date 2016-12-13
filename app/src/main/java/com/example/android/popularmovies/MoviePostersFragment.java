@@ -1,14 +1,12 @@
 package com.example.android.popularmovies;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.Toast;
 
@@ -16,7 +14,7 @@ import android.widget.Toast;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link MoviePostersFragment.OnFragmentInteractionListener} interface
+ * {@link OnGridItemClickedListener} interface
  * to handle interaction events.
  */
 public class MoviePostersFragment extends Fragment {
@@ -25,7 +23,7 @@ public class MoviePostersFragment extends Fragment {
     ImageAdapter mImageAdapter = null;
 
 
-    private OnFragmentInteractionListener mListener;
+    private OnGridItemClickedListener mListener;
 
 
     public MoviePostersFragment() {
@@ -66,7 +64,7 @@ public class MoviePostersFragment extends Fragment {
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(int position) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(position);
+            mListener.onMoviePosterClicked(position);
         }
     }
 
@@ -74,10 +72,10 @@ public class MoviePostersFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (OnGridItemClickedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnGridItemClickedListener");
         }
     }
 
@@ -97,9 +95,9 @@ public class MoviePostersFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    public interface OnGridItemClickedListener {
         // TODO: Update argument type and name
-        public void onFragmentInteraction(int position);
+        public void onMoviePosterClicked(int position);
     }
 
 }
