@@ -54,7 +54,7 @@ public class MoviePostersFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //For debugging purpose
                 Toast.makeText(getActivity(),"Item["+position+"] clicked!", Toast.LENGTH_SHORT).show();
-                onButtonPressed(position);
+                onPosterClicked(position);
             }
         });
 
@@ -62,7 +62,7 @@ public class MoviePostersFragment extends Fragment {
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(int position) {
+    public void onPosterClicked(int position) {
         if (mListener != null) {
             mListener.onMoviePosterClicked(position);
         }
