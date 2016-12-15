@@ -11,4 +11,10 @@
     <color name="color_movie_title_text">#7FFFFFFF</color>
     <color name="color_movie_release_year">#7F000000</color>
     <color name="color_movie_rating">#000000</color>
+
+    <!--Color for the favorite button-->
+    <color name="color_ripple">#7F000000</color>
+    <color name="color_stroke">#000000</color>
+    <color name="gradient_start">#000000</color>
+    <color name="gradient_end">#FFFFFF</color>
 </resources>
