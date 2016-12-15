@@ -82,12 +82,7 @@
                     <!--TODO make the button funcitonal-->
                     <Button
                         android:id="@+id/mark_favorite"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@color/color_movie_title_background"
-                        android:textColor="@color/color_movie_title_text"
-                        android:visibility="gone"
-                        android:text="@string/mark_favorite"/>
+                        style="@style/style_favorite_button"/>
 
 
                 </LinearLayout>
