@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +19,7 @@ import java.net.URL;
 /**
  * Created by safwanx on 11/11/16.
  */
-public class GetMovieDetails extends AsyncTask<Integer, Void, String[]> {
+public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
 
     public final String LOG_TAG = GetMovieDetails.class.getSimpleName();
 
@@ -28,19 +29,19 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, String[]> {
     //Define an interface used as a callback to share the result
     public interface DownloadComplete
     {
-        public void onMovieDetailAvailable(String[] movieDetails);
+        public void onMovieDetailAvailable(MovieDetails movieDetails);
     }
 
 
     @Override
-    protected String[] doInBackground(Integer... params) {
+    protected MovieDetails doInBackground(Integer... params) {
 
         //These two are defined outside the try/catch so that
         //they can be closed inside finally block
 
         HttpURLConnection httpURLConnection = null;
         BufferedReader bufferedReader = null;
-        String[] movieData = null;
+        MovieDetails movieData = null;
 
         //Take out the movie id from the parameters
         int movieId = params[0];
@@ -109,7 +110,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, String[]> {
             movieDetailsJson = stringBuffer.toString();
 
             //It's time to parse the JSON
-            movieData = getMovieDataFromJson(movieDetailsJson);
+            movieData = getMovieDataFromJson(movieDetailsJson, movieId);
 
             //Close the data stream
             inputStream.close();
@@ -146,7 +147,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, String[]> {
     }
 
 
-    private String[] getMovieDataFromJson(String moviesInfoJson)
+    private MovieDetails getMovieDataFromJson(String moviesInfoJson, int movieId)
             throws JSONException {
         //Define the JSON tags that have to be extracted from the JSON data
         final String ORIGINAL_TITLE = "original_title";
@@ -157,9 +158,11 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, String[]> {
 
         final String MOVIE_OVERVIEW = "overview";
 
+        final String MOVIE_VIDEOS = "videos";
+        final String MOVIE_REVIEWS = "reviews";
+
         String basePath = ((Fragment)listener).getActivity().getString(R.string.poster_base_path);
 
-        //Create array for movie information
         String[] movieDetails = new String[6];
 
         //Create a JSON object
@@ -183,12 +186,59 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, String[]> {
         //Retrieve description
         movieDetails[5] = jsonObject.getString(MOVIE_OVERVIEW);
 
-        return movieDetails;
+        //Create data structure to save movie information
+        //but need to know the size of reviews and videos first
+        JSONObject reviews = jsonObject.getJSONObject(MOVIE_REVIEWS);
+        JSONArray arrayReviews = reviews.getJSONArray("results");
+
+        JSONObject videos = jsonObject.getJSONObject(MOVIE_VIDEOS);
+        JSONArray arrayVideos = videos.getJSONArray("results");
+
+        MovieDetails newMovieDetails = new MovieDetails(movieDetails[0],
+                movieDetails[1],
+                movieDetails[2],
+                movieDetails[3],
+                movieDetails[4],
+                movieDetails[5],
+                arrayVideos.length(),
+                arrayReviews.length(),
+                String.valueOf(movieId));
+
+        //Start adding videos to list
+        String baseVideoUrl = ((Fragment) listener).getActivity().getString(R.string.base_video_url);
+
+        for(int i = 0; i < arrayVideos.length(); i++) {
+            //Get the Json object
+            JSONObject videoDetails = arrayVideos.getJSONObject(i);
+            //Take out the video key
+            String videoKey = videoDetails.getString("key");
+
+            Uri.Builder builder = new Uri.Builder();
+            builder.encodedPath(baseVideoUrl);
+            builder.appendQueryParameter("v",videoKey);
+
+            //Add complete url to list
+            newMovieDetails.addVideoToList(builder.toString());
+        }
+
+        //Start adding reviews to list
+        for (int i = 0; i < arrayReviews.length(); i++) {
+            //Get the json object
+            JSONObject reviewDetails = arrayReviews.getJSONObject(i);
+            //Take out the author and review
+            String author = reviewDetails.getString("author");
+            String review = reviewDetails.getString("content");
+
+            //Add this to the movie structure
+            newMovieDetails.addReviewToList(author, review);
+        }
+
+        return newMovieDetails;
     }
 
 
     @Override
-    protected void onPostExecute(String[] movieData) {
+    protected void onPostExecute(MovieDetails movieData) {
         super.onPostExecute(movieData);
 
         try {
