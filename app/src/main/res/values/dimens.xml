@@ -31,4 +31,31 @@
     <!--Dimensions used in main page (grid view)-->
     <dimen name="fragment_movie_posters_main_grid_view_vertical_spacing">2dp</dimen>
     <dimen name="fragment_movie_posters_main_grid_view_horizontal_spacing">2dp</dimen>
+
+    <!--Dimension of separator line(divider) used in detail fragment.-->
+    <dimen name="fragment_movie_detail_separator_line_height">1dp</dimen>
+
+    <!--Dimensions for the video section title-->
+    <dimen name="fragment_movie_detail_video_section_title">24sp</dimen>
+    <dimen name="fragment_movie_detail_movie_video_separator_layout_margin">4dp</dimen>
+    <dimen name="fragment_movie_detail_movie_video_previous_minHeight">0dp</dimen>
+    <dimen name="fragment_movie_detail_movie_video_previous_minWidth">0dp</dimen>
+    <dimen name="fragment_movie_detail_button_separator_first_layout_marginRight">4dp</dimen>
+    <dimen name="fragment_movie_detail_button_separator_first_layout_minHeight">48dp</dimen>
+    <dimen name="fragment_movie_detail_play_movie_video_minHeight">0dp</dimen>
+    <dimen name="fragment_movie_detail_play_movie_video_minWidth">0dp</dimen>
+    <dimen name="fragment_movie_detail_movie_trailer_number_textSize">22sp</dimen>
+    <dimen name="fragment_movie_detail_movie_video_next_minHeight">0dp</dimen>
+    <dimen name="fragment_movie_detail_movie_video_next_minWidth">0dp</dimen>
+    <dimen name="fragment_movie_detail_button_separator_second_layout_marginRight">4dp</dimen>
+    <dimen name="fragment_movie_detail_button_separator_second_minHeight">48dp</dimen>
+
+    <!--Dimensions for the review section title-->
+    <dimen name="fragment_movie_detail_movie_review_separator_layout_margin">4dp</dimen>
+    <dimen name="fragment_movie_detail_review_section_title">24sp</dimen>
+    <dimen name="fragment_movie_detail_review_prev_next_separator_layout_width">2dp</dimen>
+    <dimen name="fragment_movie_detail_review_previous_minHeight">0dp</dimen>
+    <dimen name="fragment_movie_detail_review_previous_minWidth">0dp</dimen>
+    <dimen name="fragment_movie_detail_review_next_minHeight">0dp</dimen>
+    <dimen name="fragment_movie_detail_review_next_minWidth">0dp</dimen>
 </resources>
