@@ -42,4 +42,12 @@
     <!--String representation of base path for movie poster-->
     <string name="poster_base_path">http://image.tmdb.org/t/p/w185/</string>
 
+    <!--String representation of the base path for movie videos-->
+    <string name="base_video_url">http://www.youtube.com/watch</string>
+
+    <!--String used for the videos section title-->
+    <string name="movie_videos">Videos</string>
+    <!--String used for the reviews section title-->
+    <string name="movie_reviews">Reviews</string>
+    <string name="trailer_text">Trailer</string>
 </resources>
