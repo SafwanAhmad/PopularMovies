@@ -58,7 +58,7 @@ public class DetailActivity extends AppCompatActivity implements MovieDetailFrag
     }
 
     @Override
-    public void onMovieDetailsUpdated(String[] movieDetails) {
+    public void onMovieDetailsUpdated() {
         final FragmentTransaction ft =  getSupportFragmentManager().beginTransaction();
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(MOVIE_DETAIL_FRAG_TAG);
 
