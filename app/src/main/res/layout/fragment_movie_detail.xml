@@ -1,5 +1,4 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
 
     android:layout_width="match_parent"
@@ -12,13 +11,15 @@
         android:id="@+id/movie_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/color_movie_title_text"
-        android:paddingLeft="@dimen/title_text_padding_left"
-        android:textSize="@dimen/title_text_size"
         android:background="@color/color_movie_title_background"
-        android:visibility="gone"/>
+        android:paddingLeft="@dimen/title_text_padding_left"
+        android:textColor="@color/color_movie_title_text"
+        android:textSize="@dimen/title_text_size"
+        android:alpha="0.8"
+        android:visibility="invisible" />
 
     <ScrollView
+        android:id="@+id/layout_scroller"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -34,41 +35,41 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="@dimen/outer_container_padding_top"
+                android:orientation="horizontal"
                 android:paddingLeft="@dimen/outer_container_padding_left"
-                android:orientation="horizontal">
+                android:paddingTop="@dimen/outer_container_padding_top">
 
                 <!--Poster thumbnail-->
                 <ImageView
                     android:id="@+id/movie_poster"
                     android:layout_width="@dimen/image_poster_layout_width"
                     android:layout_height="wrap_content"
-                    android:layout_weight="@integer/image_poster_layout_weight"/>
+                    android:layout_weight="@integer/image_poster_layout_weight" />
 
                 <LinearLayout
                     android:layout_width="@dimen/inner_container_layout_width"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/inner_container_layout_margin_left"
                     android:layout_weight="@integer/inner_container_layout_weight"
-                    android:orientation="vertical"
-                    android:layout_marginLeft="@dimen/inner_container_layout_margin_left">
+                    android:orientation="vertical">
 
                     <!--Year of release-->
                     <TextView
                         android:id="@+id/release_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-condensed"
                         android:textColor="@color/color_movie_release_year"
-                        android:textSize="@dimen/year_of_release_text_size"
-                        android:fontFamily="sans-serif-condensed"/>
+                        android:textSize="@dimen/year_of_release_text_size" />
 
                     <!--Running time-->
                     <TextView
                         android:id="@+id/running_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-condensed"
                         android:textColor="@color/color_movie_release_year"
-                        android:textSize="@dimen/running_time_text_size"
-                        android:fontFamily="sans-serif-condensed"/>
+                        android:textSize="@dimen/running_time_text_size" />
 
                     <!--Movie Rating-->
                     <TextView
@@ -76,13 +77,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/color_movie_rating"
-                        android:textSize="@dimen/movie_rating_text_size"/>
+                        android:textSize="@dimen/movie_rating_text_size" />
 
                     <!--Mark as favorite button-->
                     <!--TODO make the button funcitonal-->
                     <Button
                         android:id="@+id/mark_favorite"
-                        style="@style/style_favorite_button"/>
+                        style="@style/style_favorite_button" />
 
 
                 </LinearLayout>
@@ -94,7 +95,163 @@
                 android:id="@+id/movie_plot"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/movie_description_text_size"/>
+                android:textSize="@dimen/movie_description_text_size" />
+
+            <!--Add a separator-->
+            <View
+                android:id="@+id/movie_video_separator"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/fragment_movie_detail_separator_line_height"
+                android:layout_margin="@dimen/fragment_movie_detail_movie_video_separator_layout_margin"
+                android:background="@color/separator_line_color"
+                android:visibility="invisible"/>
+
+
+            <!--Layout containing movie videos-->
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/movie_video_previous"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ic_chevron_left_black_48dp"
+                    android:minHeight="@dimen/fragment_movie_detail_movie_video_previous_minHeight"
+                    android:minWidth="@dimen/fragment_movie_detail_movie_video_previous_minWidth"
+                    android:visibility="invisible"/>
+
+                <!--Add a separator-->
+                <View
+                    android:id="@+id/button_separator_first"
+                    android:layout_width="@dimen/fragment_movie_detail_separator_line_height"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/fragment_movie_detail_button_separator_first_layout_marginRight"
+                    android:layout_toRightOf="@id/movie_video_previous"
+                    android:background="@color/separator_line_color"
+                    android:minHeight="@dimen/fragment_movie_detail_button_separator_first_layout_minHeight"
+                    android:visibility="invisible" />
+
+                <Button
+                    android:id="@+id/play_movie_video"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/button_separator_first"
+                    android:alpha="0.6"
+                    android:background="@drawable/ic_play_circle_filled_black_48dp"
+                    android:minHeight="@dimen/fragment_movie_detail_play_movie_video_minHeight"
+                    android:minWidth="@dimen/fragment_movie_detail_play_movie_video_minWidth"
+                    android:visibility="invisible"/>
+
+                <TextView
+                    android:id="@+id/movie_trailer_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="Trailer 1"
+                    android:textSize="@dimen/fragment_movie_detail_movie_trailer_number_textSize"
+                    android:visibility="invisible"/>
+
+
+                <Button
+                    android:id="@+id/movie_video_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/ic_chevron_right_black_48dp"
+                    android:minHeight="@dimen/fragment_movie_detail_movie_video_next_minHeight"
+                    android:minWidth="@dimen/fragment_movie_detail_movie_video_next_minWidth"
+                    android:visibility="invisible"/>
+
+                <!--Add a separator-->
+                <View
+                    android:id="@+id/button_separator_second"
+                    android:layout_width="@dimen/fragment_movie_detail_separator_line_height"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/fragment_movie_detail_button_separator_second_layout_marginRight"
+                    android:layout_toLeftOf="@id/movie_video_next"
+                    android:background="@color/separator_line_color"
+                    android:minHeight="@dimen/fragment_movie_detail_button_separator_second_minHeight"
+                    android:visibility="invisible" />
+
+            </RelativeLayout>
+
+
+            <!--Add a separator-->
+            <View
+                android:id="@+id/movie_review_separator"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/fragment_movie_detail_separator_line_height"
+                android:layout_margin="@dimen/fragment_movie_detail_movie_review_separator_layout_margin"
+                android:background="@color/separator_line_color"
+                android:visibility="invisible"/>
+
+            <!--Reviews section below-->
+            <TextView
+                android:id="@+id/movie_reviews_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="@string/movie_reviews"
+                android:textSize="@dimen/fragment_movie_detail_review_section_title"
+                android:visibility="invisible"/>
+
+            <!--Layout containing movie reviews-->
+            <RelativeLayout
+                android:id="@+id/review_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!--Text field containing name of the reviewer-->
+                <TextView
+                    android:id="@+id/movie_reviewer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold" />
+
+                <!--Text view containing the review from a reviewer-->
+                <TextView
+                    android:id="@+id/movie_review"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/movie_reviewer"/>
+
+                <!--Button used as separator-->
+                <Button
+                    android:id="@+id/review_prev_next_separator"
+                    android:layout_width="@dimen/fragment_movie_detail_review_prev_next_separator_layout_width"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerInParent="true"
+                    android:visibility="invisible" />
+
+                <Button
+                    android:id="@+id/review_previous"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/review_prev_next_separator"
+                    android:layout_below="@id/movie_review"
+                    android:background="@drawable/ic_chevron_left_black_48dp"
+                    android:clickable="true"
+                    android:minHeight="@dimen/fragment_movie_detail_review_previous_minHeight"
+                    android:minWidth="@dimen/fragment_movie_detail_review_previous_minWidth"
+                    android:visibility="invisible"/>
+
+                <Button
+                    android:id="@+id/review_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/review_prev_next_separator"
+                    android:layout_below="@id/movie_review"
+                    android:background="@drawable/ic_chevron_right_black_48dp"
+                    android:clickable="true"
+                    android:minHeight="@dimen/fragment_movie_detail_review_next_minHeight"
+                    android:minWidth="@dimen/fragment_movie_detail_review_next_minWidth"
+                    android:visibility="invisible"/>
+
+
+            </RelativeLayout>
+
 
         </LinearLayout>
 
