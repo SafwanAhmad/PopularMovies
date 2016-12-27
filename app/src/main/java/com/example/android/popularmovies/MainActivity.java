@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     //callback for the fragment
-    public void onMovieDetailsUpdated(String[] movieDetails) {
+    public void onMovieDetailsUpdated() {
 
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(MOVIE_DETAIL_FRAG_TAG);
