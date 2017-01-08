@@ -69,7 +69,7 @@ public class MovieContract {
 
     public static final class Favorite implements BaseColumns {
         //Content Uri for favorite table(directory)
-        private static final Uri CONTET_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITE).build();
+        private static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITE).build();
         //Name of the table
         public static final String TABLE_NAME = "favorite";
         //Names of different columns in this table
