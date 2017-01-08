@@ -50,6 +50,14 @@
                 android:value=".MainActivity" />
         </activity>
 
+        <!-- Register the TaskContentProvider -->
+        <!-- Set name, authorities, and exported attributes -->
+        <!-- exported = false limits access to this ContentProvider to only this app -->
+        <provider
+            android:authorities="com.example.android.popularmovies"
+            android:name="com.example.android.popularmovies.data.MovieContentProvider"
+            android:exported="false"/>
+
     </application>
 
 </manifest>
