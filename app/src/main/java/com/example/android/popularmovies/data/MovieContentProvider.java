@@ -3,6 +3,7 @@ package com.example.android.popularmovies.data;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
@@ -16,9 +17,50 @@ import android.support.annotation.Nullable;
  */
 
 public class MovieContentProvider extends ContentProvider {
+    //Define constants that are used by the Uri matcher.
+    // It's convention to use 100, 200, 300, etc for directories,
+    // and related ints (101, 102, ..) for items in that directory.
+    public static final int POPULAR = 100;
+    public static final int POPULAR_ITEM = 101;
+    public static final int TOP_RATED = 200;
+    public static final int TOP_RATED_ITEM = 201;
+    public static final int FAVORITE = 300;
+    public static final int FAVORITE_ITEM = 301;
+
+    //Define a static Uri matcher object
+    private static UriMatcher sUriMatcher = buildUriMatcher();
 
     //Create a member variable for database helper
     SQLiteOpenHelper mDbHelper;
+
+
+    /**
+     * The purpose of this method is to define all URIs that are valid for this content
+     * provider. Further it helps to map these URIs to different constants defined in content
+     * provider and later allow easy URI matching.
+     * For the identification of a single row the _ID field representing a movie id is used.
+     * @return UriMatcher object.
+     */
+    public static UriMatcher buildUriMatcher() {
+        UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+        //Add URI for all rows inside popular table (complete directory)
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_POPULAR, POPULAR);
+        //Add URI for a single row inside popular table(single item)
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_POPULAR + "/#", POPULAR_ITEM);
+
+        //Add URI for all rows inside topRated table (complete directory)
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_TOP_RATED, TOP_RATED);
+        //Add URI for a single row inside topRated table (single item)
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_TOP_RATED + "/#", TOP_RATED_ITEM);
+
+        //Add URI for all rows inside favorite table(complete directory)
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_FAVORITE, FAVORITE);
+        //Add URI for a single row inside favorite table (single item)
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_FAVORITE + "/#", FAVORITE_ITEM);
+
+        return uriMatcher;
+    }
 
     /* onCreate() is where you should initialize anything you’ll need to setup
     your underlying data source.
