@@ -2,9 +2,11 @@ package com.example.android.popularmovies;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.UriMatcher;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -105,5 +107,60 @@ public class MovieContentProviderTest {
              */
             fail(providerNotRegisteredAtAll);
         }
+    }
+
+
+    //================================================================================
+    // Test UriMatcher
+    //================================================================================
+
+    //Different Uri to be tested for the functionality of UriMatcher
+    private static final Uri TEST_POPULAR = MovieContract.Popular.CONTENT_URI;
+    private static final Uri TEST_POPULAR_ITEM = TEST_POPULAR.buildUpon().appendPath("1").build();
+
+    private static final Uri TEST_TOP_RATED = MovieContract.TopRated.CONTENT_URI;
+    private static final Uri TEST_TOP_RATED_ITEM = TEST_TOP_RATED.buildUpon().appendPath("1").build();
+
+    private static final Uri TEST_FAVORITE = MovieContract.Favorite.CONTENT_URI;
+    private static final Uri TEST_FAVORITE_ITEM = TEST_FAVORITE.buildUpon().appendPath("1").build();
+
+
+    /**
+     * This function tests that the UriMatcher returns the correct integer value for
+     * each of the Uri types that the ContentProvider can handle. Uncomment this when you are
+     * ready to test your UriMatcher.
+     */
+    @Test
+    public void test_uri_matcher() {
+        //Get the reference to the UriMatcher
+        UriMatcher uriMatcher = MovieContentProvider.buildUriMatcher();
+
+        //Test if the returned code for each of the directories is correct
+        int expectedPopularCode = MovieContentProvider.POPULAR;
+        int expectedTopRatedCode = MovieContentProvider.TOP_RATED;
+        int expectedFavoriteCode = MovieContentProvider.FAVORITE;
+
+        int actualPopularCode = uriMatcher.match(TEST_POPULAR);
+        int actualTopRatedCode = uriMatcher.match(TEST_TOP_RATED);
+        int actualFavoriteCode = uriMatcher.match(TEST_FAVORITE);
+
+        assertEquals("Popular Uri was matched incorrectly!", expectedPopularCode, actualPopularCode);
+        assertEquals("Top rated Uri was mathced incorrectly!", expectedTopRatedCode, actualTopRatedCode);
+        assertEquals("Favorite Uri was matched incorrectly!", expectedFavoriteCode, actualFavoriteCode);
+
+        //Test if the returned code for each of the row(item) is correct
+        //Test if the returned code for each of the directories is correct
+        int expectedPopularItemCode = MovieContentProvider.POPULAR_ITEM;
+        int expectedTopRatedItemCode = MovieContentProvider.TOP_RATED_ITEM;
+        int expectedFavoriteItemCode = MovieContentProvider.FAVORITE_ITEM;
+
+        int actualPopularItemCode = uriMatcher.match(TEST_POPULAR_ITEM);
+        int actualTopRatedItemCode = uriMatcher.match(TEST_TOP_RATED_ITEM);
+        int actualFavoriteItemCode = uriMatcher.match(TEST_FAVORITE_ITEM);
+
+        assertEquals("Popular item Uri was matched incorrectly!", expectedPopularItemCode, actualPopularItemCode);
+        assertEquals("Top rated item Uri was mathced incorrectly!", expectedTopRatedItemCode, actualTopRatedItemCode);
+        assertEquals("Favorite item Uri was matched incorrectly!", expectedFavoriteItemCode, actualFavoriteItemCode);
+
     }
 }
