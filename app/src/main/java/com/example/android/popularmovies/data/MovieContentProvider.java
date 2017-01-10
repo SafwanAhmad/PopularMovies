@@ -1,10 +1,12 @@
 package com.example.android.popularmovies.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.support.annotation.Nullable;
@@ -39,6 +41,7 @@ public class MovieContentProvider extends ContentProvider {
      * provider. Further it helps to map these URIs to different constants defined in content
      * provider and later allow easy URI matching.
      * For the identification of a single row the _ID field representing a movie id is used.
+     *
      * @return UriMatcher object.
      */
     public static UriMatcher buildUriMatcher() {
@@ -89,7 +92,49 @@ public class MovieContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        return null;
+
+        //Get access to writable database
+        final SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        long id;
+        Uri returnedUri;
+
+        //Use uri matcher to check the validity of passed uri.
+        int code = sUriMatcher.match(uri);
+
+        switch (code) {
+            case POPULAR: {
+                id = database.insert(MovieContract.Popular.TABLE_NAME,
+                        null,
+                        values);
+            }
+            break;
+            case TOP_RATED: {
+                id = database.insert(MovieContract.TopRated.TABLE_NAME,
+                        null,
+                        values);
+            }
+            break;
+            case FAVORITE: {
+                id = database.insert(MovieContract.Favorite.TABLE_NAME,
+                        null,
+                        values);
+            }
+            break;
+            default: {
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
+        }
+
+        //Check if the values have been successfully inserted
+        if (id > 0) {
+            returnedUri = ContentUris.withAppendedId(uri, id);
+
+            //Notify the resolver if the uri has been changed, and return the newly inserted URI
+            getContext().getContentResolver().notifyChange(uri, null);
+        } else {
+            throw new android.database.SQLException("Failed to insert row into " + uri);
+        }
+        return returnedUri;
     }
 
     @Override
