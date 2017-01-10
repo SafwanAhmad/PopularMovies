@@ -1,6 +1,9 @@
 package com.example.android.popularmovies;
 
 import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.content.pm.PackageManager;
@@ -161,6 +164,62 @@ public class MovieContentProviderTest {
         assertEquals("Popular item Uri was matched incorrectly!", expectedPopularItemCode, actualPopularItemCode);
         assertEquals("Top rated item Uri was mathced incorrectly!", expectedTopRatedItemCode, actualTopRatedItemCode);
         assertEquals("Favorite item Uri was matched incorrectly!", expectedFavoriteItemCode, actualFavoriteItemCode);
+
+    }
+
+    //================================================================================
+    // Test Insert
+    //================================================================================
+
+
+    /**
+     * Tests inserting a single row of data via a ContentResolver
+     */
+    @Test
+    public void testInsert() {
+        //Create values to insert
+        ContentValues values = new ContentValues();
+        values.put(MovieContract.Popular._ID, 1);
+        values.put(MovieContract.Popular.COLUMN_MOVIE_TITLE, "Mr. Beans");
+        values.put(MovieContract.Popular.COLUMN_MOVIE_POSTER_PATH, "www.tmdb.org");
+        values.put(MovieContract.Popular.COLUMN_MOVIE_RELEASE_DATE, "10/01/2017");
+        values.put(MovieContract.Popular.COLUMN_MOVIE_USER_RATING, "4.5");
+        values.put(MovieContract.Popular.COLUMN_MOVIE_RUNNING_TIME, "120");
+        values.put(MovieContract.Popular.COLUMN_MOVIE_PLOT, "Comedy by Atkinson");
+
+        /* TestContentObserver allows us to test if notifyChange was called appropriately */
+        TestUtilities.TestContentObserver testContentObserver = TestUtilities.getTestContentObserver();
+
+        /*Get the content resolver*/
+        ContentResolver resolver = mContext.getContentResolver();
+
+        /* Register a content observer to be notified of changes to data at a given URI (popular) */
+        resolver.registerContentObserver(
+                /* URI that we would like to observe changes to */
+                MovieContract.Popular.CONTENT_URI,
+                /* Whether or not to notify us if descendants of this URI change */
+                true,
+                /* The observer to register (that will receive notifyChange callbacks) */
+                testContentObserver);
+
+        Uri uri = resolver.insert(MovieContract.Popular.CONTENT_URI, values);
+
+        Uri expectedUri = ContentUris.withAppendedId(MovieContract.Popular.CONTENT_URI, 1);
+
+        String insertProviderFailed = "Unable to insert item through Provider";
+        assertEquals(insertProviderFailed, uri, expectedUri);
+
+        /*
+         * If this fails, it's likely you didn't call notifyChange in your insert method from
+         * your ContentProvider.
+         */
+        testContentObserver.waitForNotificationOrFail();
+
+         /*
+         * waitForNotificationOrFail is synchronous, so after that call, we are done observing
+         * changes to content and should therefore unregister this observer.
+         */
+        resolver.unregisterContentObserver(testContentObserver);
 
     }
 }
