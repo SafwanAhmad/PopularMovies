@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.UriMatcher;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
@@ -22,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 /**
@@ -61,8 +63,7 @@ public class MovieContentProviderTest {
      * added a <provider/> tag and that you've properly specified the android:authorities attribute.
      */
     @Test
-    public void test_content_provider_registry()
-    {
+    public void test_content_provider_registry() {
         /*
          * A ComponentName is an identifier for a specific application component, such as an
          * Activity, ContentProvider, BroadcastReceiver, or a Service.
@@ -99,8 +100,7 @@ public class MovieContentProviderTest {
                     actualAuthority,
                     expectedAuthority);
 
-        }catch (PackageManager.NameNotFoundException ex)
-        {
+        } catch (PackageManager.NameNotFoundException ex) {
             String providerNotRegisteredAtAll =
                     "Error: TaskContentProvider not registered at " + mContext.getPackageName();
             /*
@@ -221,5 +221,102 @@ public class MovieContentProviderTest {
          */
         resolver.unregisterContentObserver(testContentObserver);
 
+    }
+
+    //================================================================================
+    // Test Query (for directory/ all rows and single row)
+    //================================================================================
+
+    /**
+     * Inserts data, then tests if a query for the tasks directory returns that data as a Cursor
+     */
+    @Test
+    public void testQuery() {
+        //Get access to writable database
+        MovieDbHelper dbHelper = new MovieDbHelper(mContext);
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+
+        //Create values to insert
+        ContentValues values1 = new ContentValues();
+        values1.put(MovieContract.Popular._ID, 1);
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_TITLE, "Mr. Beans");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_POSTER_PATH, "www.tmdb.org");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_RELEASE_DATE, "10/01/2017");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_USER_RATING, "4.5");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_RUNNING_TIME, "120");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_PLOT, "Comedy by Atkinson");
+
+        ContentValues values2 = new ContentValues();
+        values2.put(MovieContract.Popular._ID, 2);
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_TITLE, "Mr. Beans");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_POSTER_PATH, "www.tmdb.org");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_RELEASE_DATE, "10/01/2017");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_USER_RATING, "4.5");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_RUNNING_TIME, "120");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_PLOT, "Comedy by Atkinson");
+
+        /* Insert ContentValues into database and get a row ID back */
+        long rowId1 = database.insert(
+                //Table to insert into
+                MovieContract.Popular.TABLE_NAME,
+                null,
+                //Values to be inserted
+                values1
+        );
+
+        long rowId2 = database.insert(
+                //Table to insert into
+                MovieContract.Popular.TABLE_NAME,
+                null,
+                //Values to be inserted
+                values2
+        );
+
+        String insertFailed = "Unable to insert directly into the database";
+        assertTrue(insertFailed, (rowId1 != -1) && (rowId2 != -1));
+
+        /* We are done with the database, close it now. */
+        database.close();
+
+        /* Perform the ContentProvider query */
+        Cursor cursor = mContext.getContentResolver().query(
+                MovieContract.Popular.CONTENT_URI,
+                /* Columns; leaving this null returns every column in the table */
+                null,
+                /* Optional specification for columns in the "where" clause above */
+                null,
+                /* Values for "where" clause */
+                null,
+                /* Sort order to return in Cursor */
+                null);
+
+        String queryFailed = "Query failed to return a valid Cursor";
+        assertTrue(queryFailed, cursor != null);
+
+        String countInvalid = "Not all rows returned back";
+        assertTrue(countInvalid, cursor.getCount() == 2);
+
+        cursor.close();
+
+        cursor = mContext.getContentResolver().query(
+                MovieContract.Popular.CONTENT_URI.buildUpon().appendPath("1").build(),
+                /* Columns; leaving this null returns every column in the table */
+                null,
+                /* Optional specification for columns in the "where" clause above */
+                null,
+                /* Values for "where" clause */
+                null,
+                /* Sort order to return in Cursor */
+                null);
+
+        assertTrue(queryFailed, cursor != null);
+        assertTrue(countInvalid, cursor.getCount() == 1);
+
+        if (cursor.moveToFirst()) {
+            assertTrue("Movie Id does not match", "1".equals(cursor.getString(cursor.getColumnIndex(MovieContract.Popular._ID))));
+        }
+
+        /* We are done with the cursor, close it now. */
+        cursor.close();
     }
 }
