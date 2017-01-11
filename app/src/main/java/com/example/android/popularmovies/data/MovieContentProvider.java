@@ -35,6 +35,12 @@ public class MovieContentProvider extends ContentProvider {
     //Create a member variable for database helper
     SQLiteOpenHelper mDbHelper;
 
+    //These are different Selection clauses which are used to perform different
+    //types of queries. The ? mark is replaced by the selection args provided
+    //in the query.
+    static final String sSelectionPopular = MovieContract.Popular._ID + "=?";
+    static final String sSelectionTopRated = MovieContract.TopRated._ID + "=?";
+    static final String sSelectionFavorite = MovieContract.Favorite._ID + "=?";
 
     /**
      * The purpose of this method is to define all URIs that are valid for this content
@@ -145,6 +151,103 @@ public class MovieContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        return null;
+        //Get access to readable database
+        SQLiteDatabase database = mDbHelper.getReadableDatabase();
+        //Cursor to be returned (if query is successful)
+        Cursor cursor = null;
+
+        //Find if the uri is valid
+        int code = sUriMatcher.match(uri);
+
+        switch (code) {
+            case POPULAR: {
+                cursor = database.query(MovieContract.Popular.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+            }
+            break;
+
+            //Based on this type of uri, provider will find the right selection and selection args
+            //to be sent in the query.
+            case POPULAR_ITEM: {
+                //Using Selection and Selection args
+                //URI: content://<authority>/<path>/#
+
+                String movieId = uri.getPathSegments().get(1);
+
+                cursor = database.query(MovieContract.Popular.TABLE_NAME,
+                        projection,
+                        sSelectionPopular,
+                        new String[]{movieId},
+                        null,
+                        null,
+                        sortOrder);
+            }
+            break;
+
+            case TOP_RATED: {
+                cursor = database.query(MovieContract.TopRated.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+            }
+            break;
+
+            case TOP_RATED_ITEM: {
+                //Using Selection and Selection args
+                //URI: content://<authority>/<path>/#
+
+                String movieId = uri.getPathSegments().get(1);
+
+                cursor = database.query(MovieContract.TopRated.TABLE_NAME,
+                        projection,
+                        sSelectionTopRated,
+                        new String[]{movieId},
+                        null,
+                        null,
+                        sortOrder);
+            }
+            break;
+
+            case FAVORITE: {
+                cursor = database.query(MovieContract.Favorite.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+            }
+            break;
+
+            case FAVORITE_ITEM: {
+                //Using Selection and Selection args
+                //URI: content://<authority>/<path>/#
+
+                String movieId = uri.getPathSegments().get(1);
+
+                cursor = database.query(MovieContract.Favorite.TABLE_NAME,
+                        projection,
+                        sSelectionFavorite,
+                        new String[]{movieId},
+                        null,
+                        null,
+                        sortOrder);
+            }
+            break;
+
+            default: {
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
+        }
+
+        return cursor;
     }
 }
