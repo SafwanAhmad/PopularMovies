@@ -248,6 +248,9 @@ public class MovieContentProvider extends ContentProvider {
             }
         }
 
+        //Also register to watch a content URI for changes.
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+
         return cursor;
     }
 }
