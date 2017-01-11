@@ -145,7 +145,103 @@ public class MovieContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        //Get the access to a writable database
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+
+        //Number of rows deleted
+        int rowsDeleted;
+
+        //Use UriMatcher to check if the uri is supported
+        int code = sUriMatcher.match(uri);
+
+        switch (code) {
+            case POPULAR: {
+                rowsDeleted = database.delete(
+                        //Name of the table containing the data
+                        MovieContract.Popular.TABLE_NAME,
+                        //Selection clause (where in sql)
+                        selection,
+                        //Arguments for the selection
+                        selectionArgs
+                );
+            }
+            break;
+
+            case POPULAR_ITEM: {
+                //Get the movie ID for a specific movie
+                String movieId = uri.getPathSegments().get(1);
+                //Make the selection clause for this operation
+                String[] mSelectionArgs = new String[]{movieId};
+
+                rowsDeleted = database.delete(
+                        MovieContract.Popular.TABLE_NAME,
+                        sSelectionPopular,
+                        mSelectionArgs
+                );
+            }
+            break;
+
+            case TOP_RATED: {
+                rowsDeleted = database.delete(
+                        //Name of the table containing the data
+                        MovieContract.TopRated.TABLE_NAME,
+                        //Selection clause (where in sql)
+                        selection,
+                        //Arguments for the selection
+                        selectionArgs
+                );
+            }
+            break;
+
+            case TOP_RATED_ITEM: {
+                //Get the movie ID for a specific movie
+                String movieId = uri.getPathSegments().get(1);
+                //Make the selection clause for this operation
+                String[] mSelectionArgs = new String[]{movieId};
+
+                rowsDeleted = database.delete(
+                        MovieContract.TopRated.TABLE_NAME,
+                        sSelectionTopRated,
+                        mSelectionArgs
+                );
+            }
+            break;
+
+            case FAVORITE: {
+                rowsDeleted = database.delete(
+                        //Name of the table containing the data
+                        MovieContract.Favorite.TABLE_NAME,
+                        //Selection clause (where in sql)
+                        selection,
+                        //Arguments for the selection
+                        selectionArgs
+                );
+            }
+            break;
+
+            case FAVORITE_ITEM: {
+                //Get the movie ID for a specific movie
+                String movieId = uri.getPathSegments().get(1);
+                //Make the selection clause for this operation
+                String[] mSelectionArgs = new String[]{movieId};
+
+                rowsDeleted = database.delete(
+                        MovieContract.Favorite.TABLE_NAME,
+                        sSelectionFavorite,
+                        mSelectionArgs
+                );
+            }
+            break;
+
+            default: {
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
+        }
+
+        //Don't forget to notify listener about the data change
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return rowsDeleted;
     }
 
     @Nullable

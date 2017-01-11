@@ -319,4 +319,99 @@ public class MovieContentProviderTest {
         /* We are done with the cursor, close it now. */
         cursor.close();
     }
+
+
+    //================================================================================
+    // Test Delete (for a single item)
+    //================================================================================
+
+
+    /**
+     * Tests deleting a single row of data via a ContentResolver
+     */
+    @Test
+    public void testDelete() {
+        //Get access to writable database
+        MovieDbHelper dbHelper = new MovieDbHelper(mContext);
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+
+        //Create values to insert
+        ContentValues values1 = new ContentValues();
+        values1.put(MovieContract.Popular._ID, 1);
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_TITLE, "Mr. Beans");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_POSTER_PATH, "www.tmdb.org");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_RELEASE_DATE, "10/01/2017");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_USER_RATING, "4.5");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_RUNNING_TIME, "120");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_PLOT, "Comedy by Atkinson");
+
+        ContentValues values2 = new ContentValues();
+        values2.put(MovieContract.Popular._ID, 2);
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_TITLE, "Mr. Beans");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_POSTER_PATH, "www.tmdb.org");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_RELEASE_DATE, "10/01/2017");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_USER_RATING, "4.5");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_RUNNING_TIME, "120");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_PLOT, "Comedy by Atkinson");
+
+
+        /* Insert ContentValues into database and get a row ID back */
+        long rowId1 = database.insert(
+                //Table to insert into
+                MovieContract.Popular.TABLE_NAME,
+                null,
+                //Values to be inserted
+                values1
+        );
+
+        long rowId2 = database.insert(
+                //Table to insert into
+                MovieContract.Popular.TABLE_NAME,
+                null,
+                //Values to be inserted
+                values2
+        );
+
+        String insertFailed = "Unable to insert directly into the database";
+        assertTrue(insertFailed, (rowId1 != -1) && (rowId2 != -1));
+
+        /* TestContentObserver allows us to test if notifyChange was called appropriately */
+        TestUtilities.TestContentObserver testContentObserver = TestUtilities.getTestContentObserver();
+
+        ContentResolver contentResolver = mContext.getContentResolver();
+
+        /* Register a content observer to be notified of changes to data at a given URI (tasks) */
+        contentResolver.registerContentObserver(
+                /* URI that we would like to observe changes to */
+                MovieContract.Popular.CONTENT_URI,
+                /* Whether or not to notify us if descendants of this URI change */
+                true,
+                /* The observer to register (that will receive notifyChange callbacks) */
+                testContentObserver
+        );
+
+        /* The delete method deletes the previously inserted row with id = 1 */
+        Uri uriToDelete = MovieContract.Popular.CONTENT_URI.buildUpon().appendPath("1").build();
+        int idDeleted = contentResolver.delete(
+                uriToDelete,
+                null,
+                null
+        );
+
+        String deleteFailed = "Unable to delete item in the database";
+        assertTrue(deleteFailed, idDeleted != 0);
+
+        /*
+         * If this fails, it's likely you didn't call notifyChange in your delete method from
+         * your ContentProvider.
+         */
+        testContentObserver.waitForNotificationOrFail();
+
+         /*
+         * waitForNotificationOrFail is synchronous, so after that call, we are done observing
+         * changes to content and should therefore unregister this observer.
+         */
+        contentResolver.unregisterContentObserver(testContentObserver);
+    }
+
 }
