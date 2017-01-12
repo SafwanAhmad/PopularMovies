@@ -1,5 +1,6 @@
 package com.example.android.popularmovies.data;
 
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -42,6 +43,15 @@ public class MovieContract {
     public static final class Popular implements BaseColumns {
         //Content Uri for popular table (directory)
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_POPULAR).build();
+
+        //Different MIME types used by getType method of content provider
+        //We are working with two types of data:
+        //1) a directory and 2) a single row of data.
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_POPULAR;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_POPULAR;
+
         //Name of the table
         public static final String TABLE_NAME = "popular";
         //Names of different columns in this table
@@ -56,6 +66,15 @@ public class MovieContract {
     public static final class TopRated implements BaseColumns {
         //Content Uri for topRated table(directory)
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_TOP_RATED).build();
+
+        //Different MIME types used by getType method of content provider
+        //We are working with two types of data:
+        //1) a directory and 2) a single row of data.
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TOP_RATED;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TOP_RATED;
+
         //Name of the table
         public static final String TABLE_NAME = "topRated";
         //Names of different columns in this table
@@ -70,6 +89,15 @@ public class MovieContract {
     public static final class Favorite implements BaseColumns {
         //Content Uri for favorite table(directory)
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITE).build();
+
+        //Different MIME types used by getType method of content provider
+        //We are working with two types of data:
+        //1) a directory and 2) a single row of data.
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_FAVORITE;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_FAVORITE;
+
         //Name of the table
         public static final String TABLE_NAME = "favorite";
         //Names of different columns in this table
