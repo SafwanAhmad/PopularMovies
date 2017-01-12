@@ -87,12 +87,44 @@ public class MovieContentProvider extends ContentProvider {
     @Nullable
     @Override
     public String getType(Uri uri) {
-        return null;
+        //Use uri matcher to determine the type of the uri
+        int code = sUriMatcher.match(uri);
+
+        switch (code) {
+            case POPULAR: {
+                return MovieContract.Popular.CONTENT_TYPE;
+            }
+
+            case POPULAR_ITEM: {
+                return MovieContract.Popular.CONTENT_ITEM_TYPE;
+            }
+
+            case TOP_RATED: {
+                return MovieContract.TopRated.CONTENT_TYPE;
+            }
+
+            case TOP_RATED_ITEM: {
+                return MovieContract.TopRated.CONTENT_ITEM_TYPE;
+            }
+
+            case FAVORITE: {
+                return MovieContract.Favorite.CONTENT_TYPE;
+            }
+
+            case FAVORITE_ITEM: {
+                return MovieContract.Favorite.CONTENT_ITEM_TYPE;
+            }
+
+            default: {
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
+        }
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+        //Right now we are not providing support for update
+        throw new UnsupportedOperationException("Not implemented yet!");
     }
 
     @Nullable
