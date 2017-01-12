@@ -414,4 +414,64 @@ public class MovieContentProviderTest {
         contentResolver.unregisterContentObserver(testContentObserver);
     }
 
+
+    //================================================================================
+    // Bulk Insert
+    //================================================================================
+
+    @Test
+    public void test_bulk_insert()
+    {
+        //Create values to insert
+        ContentValues values1 = new ContentValues();
+        values1.put(MovieContract.Popular._ID, 1);
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_TITLE, "Mr. Beans");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_POSTER_PATH, "www.tmdb.org");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_RELEASE_DATE, "10/01/2017");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_USER_RATING, "4.5");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_RUNNING_TIME, "120");
+        values1.put(MovieContract.Popular.COLUMN_MOVIE_PLOT, "Comedy by Atkinson");
+
+        ContentValues values2 = new ContentValues();
+        values2.put(MovieContract.Popular._ID, 2);
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_TITLE, "Mr. Beans");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_POSTER_PATH, "www.tmdb.org");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_RELEASE_DATE, "10/01/2017");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_USER_RATING, "4.5");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_RUNNING_TIME, "120");
+        values2.put(MovieContract.Popular.COLUMN_MOVIE_PLOT, "Comedy by Atkinson");
+
+        /* TestContentObserver allows us to test if notifyChange was called appropriately */
+        TestUtilities.TestContentObserver testContentObserver = TestUtilities.getTestContentObserver();
+
+        /*Get the content resolver*/
+        ContentResolver resolver = mContext.getContentResolver();
+
+        /* Register a content observer to be notified of changes to data at a given URI (popular) */
+        resolver.registerContentObserver(
+                /* URI that we would like to observe changes to */
+                MovieContract.Popular.CONTENT_URI,
+                /* Whether or not to notify us if descendants of this URI change */
+                true,
+                /* The observer to register (that will receive notifyChange callbacks) */
+                testContentObserver);
+
+        int rowsInserted = resolver.bulkInsert(MovieContract.Popular.CONTENT_URI,
+                new ContentValues[]{values1, values2});
+
+        assertTrue("Unable to perform bulk insert!", rowsInserted == 2);
+
+        /*
+         * If this fails, it's likely you didn't call notifyChange in your insert method from
+         * your ContentProvider.
+         */
+        testContentObserver.waitForNotificationOrFail();
+
+         /*
+         * waitForNotificationOrFail is synchronous, so after that call, we are done observing
+         * changes to content and should therefore unregister this observer.
+         */
+        resolver.unregisterContentObserver(testContentObserver);
+    }
+
 }
