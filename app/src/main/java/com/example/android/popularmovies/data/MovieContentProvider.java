@@ -381,4 +381,96 @@ public class MovieContentProvider extends ContentProvider {
 
         return cursor;
     }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        //Get the access to a writable database
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        int code = sUriMatcher.match(uri);
+
+        switch (code) {
+            case POPULAR: {
+                //See how begin transaction is used effectively
+                database.beginTransaction();
+                //Number of rows inserted
+                int rowsInserted = 0;
+
+                try{
+                    for (ContentValues value : values) {
+                        long id = database.insert(MovieContract.Popular.TABLE_NAME,
+                                null,
+                                value);
+
+                        if (id != -1) {
+                            rowsInserted++;
+                        }
+                    }
+                    database.setTransactionSuccessful();
+
+                } finally {
+                    database.endTransaction();
+                }
+                //Don't forget to notify listener about the data change
+                getContext().getContentResolver().notifyChange(uri, null);
+                return rowsInserted;
+            }
+
+            case TOP_RATED: {
+                //See how begin transaction is used effectively
+                database.beginTransaction();
+                //Number of rows inserted
+                int rowsInserted = 0;
+
+                try{
+                    for (ContentValues value : values) {
+                        long id = database.insert(MovieContract.TopRated.TABLE_NAME,
+                                null,
+                                value);
+
+                        if (id != -1) {
+                            rowsInserted++;
+                        }
+
+                    }
+                    database.setTransactionSuccessful();
+
+                } finally {
+                    database.endTransaction();
+                }
+                //Don't forget to notify listener about the data change
+                getContext().getContentResolver().notifyChange(uri, null);
+                return rowsInserted;
+            }
+
+            case FAVORITE: {
+                //See how begin transaction is used effectively
+                database.beginTransaction();
+                //Number of rows inserted
+                int rowsInserted = 0;
+
+                try{
+                    for (ContentValues value : values) {
+                        long id = database.insert(MovieContract.Favorite.TABLE_NAME,
+                                null,
+                                value);
+
+                        if (id != -1) {
+                            rowsInserted++;
+                        }
+                    }
+                    database.setTransactionSuccessful();
+
+                } finally {
+                    database.endTransaction();
+                }
+                //Don't forget to notify listener about the data change
+                getContext().getContentResolver().notifyChange(uri, null);
+                return rowsInserted;
+            }
+
+            default: {
+                return super.bulkInsert(uri, values);
+            }
+        }
+    }
 }
