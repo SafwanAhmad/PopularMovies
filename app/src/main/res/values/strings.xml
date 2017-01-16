@@ -23,11 +23,17 @@
     <!-- Label for top rated option in sorting order preference [CHAR LIMIT=25] -->
     <string name="pref_sorting_label_top_rated">Top Rated</string>
 
+    <!--Label for favorite option in sorting order preference [CHAR LIMIT=25]-->
+    <string name="pref_sorting_label_favorite">Favorite</string>
+
     <!-- Value in SharedPreferences for popular sorting order option [CHAR LIMIT=NONE] -->
     <string name="pref_sorting_popular" translatable="false">popular</string>
 
     <!-- Value in SharedPreferences for top rated sorting order option [CHAR LIMIT=NONE] -->
     <string name="pref_sorting_top_rated" translatable="false">top_rated</string>
+
+    <!-- Value in SharedPreferences for favorite sorting order option [CHAR LIMIT=NONE -->
+    <string name="pref_sorting_favorite" translatable="false">favorite</string>
 
     <!-- String values used in detail page -->
 
