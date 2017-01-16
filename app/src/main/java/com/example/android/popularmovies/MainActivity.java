@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity
-        implements MoviePostersFragment.OnGridItemClickedListener, GetMoviesData.DownloadComplete,
+        implements MoviePostersFragment.OnGridItemClickedListener,
         MovieDetailFragment.OnMovieDetailsUpdatedListener {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -62,9 +62,13 @@ public class MainActivity extends AppCompatActivity
             mTwoPane = false;
         }
 
-        //Also start the task to download movie poster in the background
-        mGetMoviesData = null;
-        getMovieData();
+        //Also start the task to download movie poster in the background if the
+        //current sort order is popular or top rated
+        if (!mSortingOrder.equals(getString(R.string.pref_sorting_favorite))) {
+            mGetMoviesData = null;
+            getMovieData();
+        }
+
     }
 
     @Override
@@ -179,7 +183,11 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    //Method to launch downloading task of movie posters
+    // Method to launch downloading task of movie posters:
+    // In case the sorting order being popular or top rated we connect to server (The Movie Database)
+    // and get the listed movies under that sorting order. First we check if there network is available
+    // or not. If the network is available then this method creates an async task and connect to server.
+    // Async task will write to the respective table in the database with the help of Content Resolver.
     protected void getMovieData() {
 
         //Before moving further, check if network is available or not
