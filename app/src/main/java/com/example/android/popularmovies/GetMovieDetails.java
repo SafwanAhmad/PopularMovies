@@ -1,9 +1,15 @@
 package com.example.android.popularmovies;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
+
+import com.example.android.popularmovies.data.MovieContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,6 +23,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
+ * When a poster is clicked we need to connect again to server to fetch more information about that movie.
+ * This includes movie running time, videos/trailers, and reviews. For that we again run a background async
+ * task.
+ * In order to fetch movie videos and reviews in a single call we use the following url:
+ *
+ * <a href="https://api.themoviedb.org/3/movie/movieId?api_key=key&append_to_response=videos,reviews">
+ *     https://api.themoviedb.org/3/movie/movieId?api_key=key&append_to_response=videos,reviews</a>
+ *
  * Created by safwanx on 11/11/16.
  */
 public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
@@ -25,6 +39,9 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
 
     //Reference to the listener for posterPathAvailable
     public DownloadComplete listener = null;
+
+    //Id of the movie
+    private int movieId;
 
     //Define an interface used as a callback to share the result
     public interface DownloadComplete
@@ -44,7 +61,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
         MovieDetails movieData = null;
 
         //Take out the movie id from the parameters
-        int movieId = params[0];
+        movieId = params[0];
 
         //Raw JSON response as a string
         String movieDetailsJson;
@@ -150,41 +167,21 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
     private MovieDetails getMovieDataFromJson(String moviesInfoJson, int movieId)
             throws JSONException {
         //Define the JSON tags that have to be extracted from the JSON data
-        final String ORIGINAL_TITLE = "original_title";
-        final String POSTER_PATH = "poster_path";
-        final String RELEASE_DATE = "release_date";
         final String RUNNING_TIME = "runtime";
-        final String VOTE_AVERAGE = "vote_average";
-
-        final String MOVIE_OVERVIEW = "overview";
 
         final String MOVIE_VIDEOS = "videos";
         final String MOVIE_REVIEWS = "reviews";
 
         String basePath = ((Fragment)listener).getActivity().getString(R.string.poster_base_path);
 
-        String[] movieDetails = new String[6];
 
         //Create a JSON object
         JSONObject jsonObject = new JSONObject(moviesInfoJson);
 
-        //Retrieve title for the movie
-        movieDetails[0] = jsonObject.getString(ORIGINAL_TITLE);
-
-        //Retrieve poster path
-        movieDetails[1] = basePath + jsonObject.getString(POSTER_PATH);
-
-        //Retrieve release date
-        movieDetails[2] = jsonObject.getString(RELEASE_DATE);
-
         //Retrieve Running time
-        movieDetails[3] = jsonObject.getString(RUNNING_TIME);
+        String runtime = jsonObject.getString(RUNNING_TIME);
 
-        //Retrieve vote average
-        movieDetails[4] = jsonObject.getString(VOTE_AVERAGE);
-
-        //Retrieve description
-        movieDetails[5] = jsonObject.getString(MOVIE_OVERVIEW);
+        updateDatabase(runtime);
 
         //Create data structure to save movie information
         //but need to know the size of reviews and videos first
@@ -194,15 +191,8 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
         JSONObject videos = jsonObject.getJSONObject(MOVIE_VIDEOS);
         JSONArray arrayVideos = videos.getJSONArray("results");
 
-        MovieDetails newMovieDetails = new MovieDetails(movieDetails[0],
-                movieDetails[1],
-                movieDetails[2],
-                movieDetails[3],
-                movieDetails[4],
-                movieDetails[5],
-                arrayVideos.length(),
-                arrayReviews.length(),
-                String.valueOf(movieId));
+        MovieDetails newMovieDetails = new MovieDetails(arrayVideos.length(),
+                arrayReviews.length());
 
         //Start adding videos to list
         String baseVideoUrl = ((Fragment) listener).getActivity().getString(R.string.base_video_url);
@@ -234,6 +224,62 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
         }
 
         return newMovieDetails;
+    }
+
+    //Helper method to update the value of running time for a movie in database.
+    private int updateDatabase(String value)
+    {
+        int rowUpdated = 0;
+
+        Context context = ((Fragment) listener).getContext();
+
+        SharedPreferences preferences = (SharedPreferences) PreferenceManager.getDefaultSharedPreferences(context);
+
+        String sortingOrder = preferences.getString(
+                context.getString(R.string.pref_sorting_order_key),
+                context.getString(R.string.pref_sorting_popular)
+        );
+
+        ContentValues values = new ContentValues();
+
+        if (sortingOrder.equals(context.getString(R.string.pref_sorting_popular))) {
+            //Build a uri for item
+            Uri itemUri = MovieContract.Popular.CONTENT_URI.buildUpon().appendPath(String.valueOf(movieId)).build();
+            //Create a new content value
+            values.put(MovieContract.Popular.COLUMN_MOVIE_RUNNING_TIME, value);
+            //Update the running time in the database
+            rowUpdated = ((Fragment)listener).getContext().getContentResolver().update(itemUri,
+                    values,
+                    null,
+                    null
+            );
+
+        } else if (sortingOrder.equals(context.getString(R.string.pref_sorting_top_rated))) {
+            //Build a uri for item
+            Uri itemUri = MovieContract.TopRated.CONTENT_URI.buildUpon().appendPath(String.valueOf(movieId)).build();
+            //Create a new content value
+            values.put(MovieContract.TopRated.COLUMN_MOVIE_RUNNING_TIME, value);
+            //Update the running time in the database
+            rowUpdated = ((Fragment)listener).getContext().getContentResolver().update(itemUri,
+                    values,
+                    null,
+                    null
+            );
+
+        } else if (sortingOrder.equals(context.getString(R.string.pref_sorting_favorite))) {
+            //Build a uri for item
+            Uri itemUri = MovieContract.Favorite.CONTENT_URI.buildUpon().appendPath(String.valueOf(movieId)).build();
+            //Create a new content value
+            values.put(MovieContract.Favorite.COLUMN_MOVIE_RUNNING_TIME, value);
+            //Update the running time in the database
+            rowUpdated = ((Fragment)listener).getContext().getContentResolver().update(itemUri,
+                    values,
+                    null,
+                    null
+            );
+        }
+
+        return rowUpdated;
     }
 
 
