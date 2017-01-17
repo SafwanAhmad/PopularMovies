@@ -11,44 +11,6 @@ public class MovieDetails {
     private int mReviewsIndex;
     private int mVideosIndex;
 
-    //This id is used for identifying a movie inside The Movie DB.
-    private String mMovieId;
-
-    private String mMovieTitle;
-    private String mMoviePosterPath;
-    private String mYearOfRelease;
-    private String mRunningTime;
-    private String mVoteAverage;
-    private String mMoviePlot;
-
-    public String getmMovieId() {
-        return mMovieId;
-    }
-
-    public String getmMovieTitle() {
-        return mMovieTitle;
-    }
-
-    public String getmMoviePosterPath() {
-        return mMoviePosterPath;
-    }
-
-    public String getmYearOfRelease() {
-        return mYearOfRelease;
-    }
-
-    public String getmRunningTime() {
-        return mRunningTime;
-    }
-
-    public String getmVoteAverage() {
-        return mVoteAverage;
-    }
-
-    public String getmMoviePlot() {
-        return mMoviePlot;
-    }
-
 
     //Data structures to hold movie reviews and videos. Hash map contains
     //<Author,Review> pair.
@@ -57,23 +19,11 @@ public class MovieDetails {
 
     //Note: Values numberOfVideos and numberOfReviews can be zero, hence
     //No data will be there but a zero size array would be there.
-    public MovieDetails(String movieTitle, String moviePosterPath,
-                        String yearOfRelease, String runningTime,
-                        String voteAverage, String moviePlot,
-                        int numberOfVideos, int numberOfReviews,
-                        String movieId)
+    public MovieDetails(int numberOfVideos, int numberOfReviews)
     {
         mReviewsIndex = mVideosIndex = -1;
         mMovieReviews = new MovieReviews[numberOfReviews];
         mVideos = new String[numberOfVideos];
-
-        mMovieTitle = movieTitle;
-        mMoviePosterPath = moviePosterPath;
-        mYearOfRelease = yearOfRelease;
-        mRunningTime = runningTime;
-        mVoteAverage = voteAverage;
-        mMoviePlot = moviePlot;
-        mMovieId = movieId;
     }
 
     //Method to append review to map
