@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity
 
     //Information for the movies
     protected String[] mPosterPaths = null;
-    protected int[] mMovieIds = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,10 +132,8 @@ public class MainActivity extends AppCompatActivity
 
     //callback method, it is called by attached fragment while any item
     // inside is clicked
-    public void onMoviePosterClicked(int position) {
+    public void onMoviePosterClicked(String movieId) {
         //Take out the movie id
-        String movieId = String.valueOf(mMovieIds[position]);
-
         if (mTwoPane == true) {
             //We want to pass the uri also to this new fragment. We will use bundle for this purpose
             Bundle id = new Bundle();
@@ -166,20 +163,6 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(MOVIE_DETAIL_FRAG_TAG);
 
         ft.detach(fragment).attach(fragment).commit();
-    }
-
-    //callback for the async task
-    public void onPosterPathsAvailable() {
-        if (mPosterPaths != null) {
-            //get the associated fragment
-            Fragment associatedFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_MoviePosters);
-            ((MoviePostersFragment) associatedFragment).mImageAdapter.setmThumbIds(mPosterPaths);
-            ((MoviePostersFragment) associatedFragment).mImageAdapter.notifyDataSetChanged();
-        } else {
-            Toast toast = Toast.makeText(this, "Nothing to display!", Toast.LENGTH_LONG);
-            toast.show();
-        }
-
     }
 
 
