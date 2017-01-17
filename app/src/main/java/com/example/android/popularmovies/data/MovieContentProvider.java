@@ -123,8 +123,87 @@ public class MovieContentProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        //Right now we are not providing support for update
-        throw new UnsupportedOperationException("Not implemented yet!");
+        //Get access to writable database
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+
+        //Number of rows updated
+        int rowsUpdated = 0;
+
+        int code = sUriMatcher.match(uri);
+
+        switch (code) {
+
+            case POPULAR: {
+                rowsUpdated = database.update(MovieContract.Popular.TABLE_NAME,
+                        values,
+                        selection,
+                        selectionArgs);
+            }
+            break;
+
+            case POPULAR_ITEM: {
+                //Get the movieId passed in the uri
+                String movieId = uri.getPathSegments().get(1);
+                String[] mSelectionArgs = new String[]{movieId};
+
+                rowsUpdated = database.update(MovieContract.Popular.TABLE_NAME,
+                        values,
+                        sSelectionPopular,
+                        mSelectionArgs);
+            }
+            break;
+
+            case TOP_RATED: {
+                rowsUpdated = database.update(MovieContract.TopRated.TABLE_NAME,
+                        values,
+                        selection,
+                        selectionArgs);
+            }
+            break;
+
+            case TOP_RATED_ITEM: {
+                //Get the movieId passed in the uri
+                String movieId = uri.getPathSegments().get(1);
+                String[] mSelectionArgs = new String[]{movieId};
+
+                rowsUpdated = database.update(MovieContract.TopRated.TABLE_NAME,
+                        values,
+                        sSelectionTopRated,
+                        mSelectionArgs);
+            }
+            break;
+
+            case FAVORITE: {
+                rowsUpdated = database.update(MovieContract.Favorite.TABLE_NAME,
+                        values,
+                        selection,
+                        selectionArgs);
+            }
+            break;
+
+            case FAVORITE_ITEM: {
+                //Get the movieId passed in the uri
+                String movieId = uri.getPathSegments().get(1);
+                String[] mSelectionArgs = new String[]{movieId};
+
+                rowsUpdated = database.update(MovieContract.Favorite.TABLE_NAME,
+                        values,
+                        sSelectionFavorite,
+                        mSelectionArgs);
+            }
+            break;
+
+            default: {
+                throw new UnsupportedOperationException("Not implemented yet!");
+            }
+        }
+
+        //We must notify about this change
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsUpdated;
     }
 
     @Nullable
@@ -271,7 +350,8 @@ public class MovieContentProvider extends ContentProvider {
         }
 
         //Don't forget to notify listener about the data change
-        getContext().getContentResolver().notifyChange(uri, null);
+        if(rowsDeleted != 0)
+            getContext().getContentResolver().notifyChange(uri, null);
 
         return rowsDeleted;
     }
