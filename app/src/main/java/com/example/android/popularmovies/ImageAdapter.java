@@ -3,6 +3,8 @@ package com.example.android.popularmovies;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.widget.CursorAdapter;
 import android.util.TypedValue;
 import android.view.View;
@@ -17,7 +19,7 @@ import com.squareup.picasso.Picasso;
  * We are using a cursor adapter to easily load and bind data. As this is being used with cursor loader hence
  * the loader manager will take care of re querying on data being changed. So while creating new ImageAdapter we
  * will pass 0 as the third parameter in the recommended constructor.
- *
+ * <p>
  * Created by safwanx on 9/26/16.
  */
 public class ImageAdapter extends CursorAdapter {
@@ -28,7 +30,7 @@ public class ImageAdapter extends CursorAdapter {
 
     @Override
     public int getCount() {
-        return ( getCursor() == null ? 0 : getCursor().getCount() );
+        return (getCursor() == null ? 0 : getCursor().getCount());
     }
 
     @Override
@@ -65,15 +67,29 @@ public class ImageAdapter extends CursorAdapter {
         // use Picasso to download image and attach that image to this image view.
 
         if (cursor != null) {
-            //TODO Assign mapping of columns inside MoviePostersFragment
-            String url = cursor.getString(1);
+            //As we have same columns indices for all three we don't need to find out which sorting
+            //order is selected
+            String url = cursor.getString(MoviePostersFragment.COLUMN_MOVIE_POSTER_PATH);
 
-            Picasso.with(context)
-                    .load(url)
-                    .placeholder(R.drawable.default_preview)
-                    //Adding caching of poster for offline access
-                    .networkPolicy(NetworkPolicy.OFFLINE)
-                    .into((ImageView)view);
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            boolean isConnected = networkInfo != null &&
+                    networkInfo.isConnectedOrConnecting();
+
+            //Picasso will not connect to network so whatever is cached is displayed
+            if (!isConnected)
+                Picasso.with(context)
+                        .load(url)
+                        .placeholder(R.drawable.default_preview)
+                        //Adding caching of poster for offline access
+                        .networkPolicy(NetworkPolicy.OFFLINE)
+                        .into((ImageView) view);
+            else {
+                Picasso.with(context)
+                        .load(url)
+                        .placeholder(R.drawable.default_preview)
+                        .into((ImageView) view);
+            }
         }
     }
 }
