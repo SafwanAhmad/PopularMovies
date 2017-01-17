@@ -3,7 +3,9 @@ package com.example.android.popularmovies;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -12,7 +14,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v7.preference.PreferenceManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +31,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.popularmovies.data.MovieContract;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
@@ -43,7 +53,7 @@ import butterknife.ButterKnife;
  * to handle interaction events.
  */
 public class MovieDetailFragment extends Fragment implements GetMovieDetails.DownloadComplete,
-        Button.OnClickListener {
+        Button.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     //Jake Wharton's Butterknife library can make binding views a lot easier!
     //Take a look - http://jakewharton.github.io/butterknife/
@@ -92,6 +102,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
 
 
     public static final String MOVIE_ID_KEY = "MOVIE_ID";
+    private String mMovieID = null;
 
     //Reference to the async task object
     GetMovieDetails mGetMovieDetails = null;
@@ -108,28 +119,96 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
     //Used to store the review sequence
     private int mReviewSequenceNumber = -1;
 
+    //Projection string to be used for cursor loader
+    private static final String[] PROJECTION_POPULAR = {
+            //To check if this is a favorite movie we need ids
+            MovieContract.Popular._ID,
+            MovieContract.Popular.COLUMN_MOVIE_TITLE,
+            MovieContract.Popular.COLUMN_MOVIE_POSTER_PATH,
+            MovieContract.Popular.COLUMN_MOVIE_RELEASE_DATE,
+            MovieContract.Popular.COLUMN_MOVIE_RUNNING_TIME,
+            MovieContract.Popular.COLUMN_MOVIE_USER_RATING,
+            MovieContract.Popular.COLUMN_MOVIE_PLOT
+    };
+
+    private static final String[] PROJECTION_TOP_RATED = {
+            MovieContract.TopRated._ID,
+            MovieContract.TopRated.COLUMN_MOVIE_TITLE,
+            MovieContract.TopRated.COLUMN_MOVIE_POSTER_PATH,
+            MovieContract.TopRated.COLUMN_MOVIE_RELEASE_DATE,
+            MovieContract.TopRated.COLUMN_MOVIE_RUNNING_TIME,
+            MovieContract.TopRated.COLUMN_MOVIE_USER_RATING,
+            MovieContract.TopRated.COLUMN_MOVIE_PLOT
+    };
+
+    private static final String[] PROJECTION_FAVORITE = {
+            MovieContract.Favorite._ID,
+            MovieContract.Favorite.COLUMN_MOVIE_TITLE,
+            MovieContract.Favorite.COLUMN_MOVIE_POSTER_PATH,
+            MovieContract.Favorite.COLUMN_MOVIE_RELEASE_DATE,
+            MovieContract.Favorite.COLUMN_MOVIE_RUNNING_TIME,
+            MovieContract.Favorite.COLUMN_MOVIE_USER_RATING,
+            MovieContract.Favorite.COLUMN_MOVIE_PLOT
+    };
+
+    //Based on above projections the index for columns. So if the projection changes
+    //this too have to be changed. The cursor returned will have columns in this order
+    //and follow these indices for columns
+    static final int COLUMN_ID = 0;
+    static final int COLUMN_MOVIE_TITLE = 1;
+    static final int COLUMN_MOVIE_POSTER_PATH = 2;
+    static final int COLUMN_MOVIE_RELEASE_DATE = 3;
+    static final int COLUMN_MOVIE_RUNNING_TIME = 4;
+    static final int COLUMN_MOVIE_USER_RATING = 5;
+    static final int COLUMN_MOVIE_PLOT = 6;
+
+
+    //Create three loaders each for available sorting orders
+    private final int loaderPopularId = 3;
+    private final int loaderTopRatedId = 4;
+    private final int loaderFavoriteId = 5;
+
+
     public MovieDetailFragment() {
         // Required empty public constructor
     }
 
+    //The initialization of loaders should be done here, so that we are confirmed that parent
+    //activity has been created.
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-        //Launch the background task to download movie details
-        Bundle data = getArguments();
-        if (data != null) {
-            String movieId = data.getString(MOVIE_ID_KEY);
+        //Get the type of loader based on the setting
+        String sortingOrder = getSortingOrder();
 
-            //Launch the async task and pass movie id
-            mGetMovieDetails = null;
-            getMovieDetail(movieId);
+        //Check if some movie poster is clicked (in case of two pane UI fragment is attached)
+        if(mMovieID != null) {
+            if (sortingOrder.equals(getString(R.string.pref_sorting_popular))) {
+                //Initialize loader
+                getLoaderManager().initLoader(loaderPopularId, null, this);
+            } else if (sortingOrder.equals(getString(R.string.pref_sorting_top_rated))) {
+                getLoaderManager().initLoader(loaderTopRatedId, savedInstanceState, this);
+            } else if (sortingOrder.equals(getString(R.string.pref_sorting_favorite))) {
+                getLoaderManager().initLoader(loaderFavoriteId, savedInstanceState, this);
+            }
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        //Launch the background task to download movie details
+        Bundle data = getArguments();
+        if (data != null) {
+            mMovieID = data.getString(MOVIE_ID_KEY);
+
+            //Launch the async task and pass movie id
+            mGetMovieDetails = null;
+            getMovieDetail(mMovieID);
+        }
+
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
@@ -139,7 +218,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         setClickListener();
 
         //if the view data is available them update them
-        if (viewData != null) {
+        /*if (viewData != null) {
             //Update the title
             mTitle.setText(viewData.getmMovieTitle());
 
@@ -190,7 +269,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
 
             //Set the visibility for the favorite button
             //Also if this movie is not in the favorite list reset color filter
-            if(mListener.getFavorites(viewData.getmMovieId()) == null) {
+            if(isFavorite(viewData.getmMovieId()) == true) {
                 setColorFilter(null);
             }
             else
@@ -208,7 +287,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
 
             //Set up views for review section
             setUpReviewSection();
-        }
+        }*/
 
         return rootView;
 
@@ -254,6 +333,134 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         }
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        CursorLoader cursorLoader = null;
+
+        switch (id)
+        {
+            case loaderPopularId: {
+                //Build uri corresponding to single item, which will be converted in the appropriate
+                //query by our content provider.
+                Uri uriItem = MovieContract.Popular.CONTENT_URI.buildUpon().appendPath(mMovieID).build();
+                cursorLoader = new CursorLoader(getContext(),
+                        uriItem,
+                        PROJECTION_POPULAR,
+                        null,
+                        null,
+                        null);
+            }
+            break;
+
+            case loaderTopRatedId: {
+                //Build uri corresponding to single item, which will be converted in the appropriate
+                //query by our content provider.
+                Uri uriItem = MovieContract.TopRated.CONTENT_URI.buildUpon().appendPath(mMovieID).build();
+                cursorLoader = new CursorLoader(getContext(),
+                        uriItem,
+                        PROJECTION_TOP_RATED,
+                        null,
+                        null,
+                        null);
+            }
+            break;
+
+            case loaderFavoriteId: {
+                //Build uri corresponding to single item, which will be converted in the appropriate
+                //query by our content provider.
+                Uri uriItem = MovieContract.Favorite.CONTENT_URI.buildUpon().appendPath(mMovieID).build();
+                cursorLoader = new CursorLoader(getContext(),
+                        uriItem,
+                        PROJECTION_FAVORITE,
+                        null,
+                        null,
+                        null);
+            }
+            break;
+
+            default: {
+                throw new IllegalArgumentException("Loader id does not match");
+            }
+        }
+
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        if(data != null && data.moveToFirst()) {
+            //In this case we don't have any adapter to work for us. So have to update views.
+            //Update the title
+            mTitle.setText(data.getString(COLUMN_MOVIE_TITLE));
+            //Also make it visible
+            mTitle.setVisibility(Button.VISIBLE);
+
+            //Update the poster
+            //Calculate the height(in pixels) for the image for different devices.
+            Resources resources = getActivity().getResources();
+            float heightPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 280, resources.getDisplayMetrics());
+
+            mPoster.setAdjustViewBounds(true);
+
+            mPoster.setMaxHeight((int) heightPx);
+
+            mPoster.setScaleType(ImageView.ScaleType.FIT_XY);
+
+            //Check if network is available
+            ConnectivityManager connectivityManager = (ConnectivityManager) getContext()
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+            boolean isConnected = networkInfo != null &&
+                    networkInfo.isConnectedOrConnecting();
+
+            if (isConnected) {
+                Picasso.with(getActivity())
+                        .load(data.getString(COLUMN_MOVIE_POSTER_PATH))
+                        .placeholder(R.drawable.default_preview)
+                        .into(mPoster);
+            } else {
+                Picasso.with(getActivity())
+                        .load(data.getString(COLUMN_MOVIE_POSTER_PATH))
+                        .placeholder(R.drawable.default_preview)
+                        .networkPolicy(NetworkPolicy.OFFLINE)
+                        .into(mPoster);
+            }
+
+            //Update the year of release
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+            Date releaseDate = null;
+
+            try {
+                releaseDate = (Date) dateFormat.parse(data.getString(COLUMN_MOVIE_RELEASE_DATE));
+            } catch (ParseException pEx) {
+
+            }
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(releaseDate);
+
+            mReleaseDate.setText(String.valueOf(calendar.get(Calendar.YEAR)));
+
+            //Update the running time
+            mRunningTime.setText(getActivity().getString(R.string.running_time, data.getString(COLUMN_MOVIE_RUNNING_TIME)));
+
+            //Update the vote average
+            mVoteAverage.setText(getActivity().getString(R.string.movie_rating, data.getString(COLUMN_MOVIE_USER_RATING)));
+
+            //Update the Description
+            mMoviePlot.setText(data.getString(COLUMN_MOVIE_PLOT));
+
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        Log.e("Hello World!", "Inside Finished");
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -274,11 +481,33 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         //Update the data for the fragment
         viewData = movieDetails;
 
+        //Also if this movie is not in the favorite list reset color filter
+        if(isFavorite(mMovieID) == false) {
+            setColorFilter(null);
+        }
+        else
+        {
+            setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY));
+        }
+
+        mMarkFavorite.setVisibility(Button.VISIBLE);
+
+        //Set the visibility for the video separator
+        mMovieVideoSeparator.setVisibility(View.VISIBLE);
+
+        //Set up views for video section
+        setupVideoSection();
+
+        //Set up views for review section
+        setUpReviewSection();
+
         //Forward the update to parent activity
-        Activity parentActivity = getActivity();
-        ((OnMovieDetailsUpdatedListener) parentActivity).onMovieDetailsUpdated();
+        //Activity parentActivity = getActivity();
+        //((OnMovieDetailsUpdatedListener) parentActivity).onMovieDetailsUpdated();
     }
 
+    //Helper method to download movie running time, videos and reviews. If there is some network available
+    //then it will launch an async task.
     protected void getMovieDetail(String movieId) {
 
         //Before moving further, check if network is available or not
@@ -320,6 +549,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
             if(viewData.getNumberOfVideos() > 1) {
                 mMovieVideoNext.setVisibility(View.VISIBLE);
             }
+            mMovieReviewSeparator.setVisibility(View.VISIBLE);
         }
 
     }
@@ -329,7 +559,6 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
 
         //If there are no reviews for the movie then don't make any view visible
         if(viewData.getNumberOfReviews() != 0) {
-            mMovieReviewSeparator.setVisibility(View.VISIBLE);
             mMovieReviewsTitle.setVisibility(View.VISIBLE);
 
             mMovieReview.setText(viewData.getMovieReview(++mReviewSequenceNumber));
@@ -477,5 +706,23 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
                 setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY));
             }
         }
+    }
+
+    //Helper method
+    private boolean isFavorite(String movieId)
+    {
+        return false;
+    }
+
+    //Helper method to find the current sorting order
+    private String getSortingOrder() {
+        SharedPreferences preferences = (SharedPreferences) PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        String sortingOrder = preferences.getString(
+                getString(R.string.pref_sorting_order_key),
+                getString(R.string.pref_sorting_popular)
+        );
+
+        return sortingOrder;
     }
 }
