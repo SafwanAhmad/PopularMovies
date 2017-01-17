@@ -2,77 +2,78 @@ package com.example.android.popularmovies;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.support.v4.widget.CursorAdapter;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 /**
+ * We are using a cursor adapter to easily load and bind data. As this is being used with cursor loader hence
+ * the loader manager will take care of re querying on data being changed. So while creating new ImageAdapter we
+ * will pass 0 as the third parameter in the recommended constructor.
+ *
  * Created by safwanx on 9/26/16.
  */
-public class ImageAdapter extends BaseAdapter {
+public class ImageAdapter extends CursorAdapter {
 
-    private Context mContext;
-
-    public void setmThumbIds(String[] mThumbIds) {
-        this.mThumbIds = mThumbIds;
+    public ImageAdapter(Context context, Cursor cursor, int flag) {
+        super(context, cursor, flag);
     }
 
-    // references to our images
-    private String[] mThumbIds = null;
-
-
-    public ImageAdapter(Context context) {
-        this.mContext = context;
-    }
-
+    @Override
     public int getCount() {
-        return (mThumbIds == null ? 0 : mThumbIds.length);
+        return ( getCursor() == null ? 0 : getCursor().getCount() );
     }
 
-    public Object getItem(int position) {
-        return null;
-    }
-
+    @Override
     public long getItemId(int position) {
         return 0;
     }
 
-    //create a new image view for each item referenced by the adapter
-    public View getView(int position, View convertView, ViewGroup parent) {
+
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
         ImageView imageView;
 
-        if (convertView == null) {
-            //if it's not recycled, initialize some attributes
-            imageView = new ImageView(mContext);
+        imageView = new ImageView(context);
 
-            //Calculate the height(in pixels) for the image for different devices.
-            Resources resources = mContext.getResources();
-            float heightPx = TypedValue
-                    .applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                            mContext.getResources().getInteger(R.integer.poster_height_dp),
-                            resources.getDisplayMetrics());
+        //Calculate the height(in pixels) for the image for different devices.
+        Resources resources = mContext.getResources();
+        float heightPx = TypedValue
+                .applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                        mContext.getResources().getInteger(R.integer.poster_height_dp),
+                        resources.getDisplayMetrics());
 
-            imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) heightPx));
-            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            //imageView.setPadding(8,8,8,8);
-        } else {
-            imageView = (ImageView) convertView;
-        }
-
-
-        if (mThumbIds != null) {
-            String url = mThumbIds[position];
-            Picasso.with(mContext).load(url).placeholder(R.drawable.default_preview)
-                    .into(imageView);
-        }
+        imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) heightPx));
+        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+        //imageView.setPadding(8,8,8,8);
 
         return imageView;
     }
 
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        // The binding is simple. We have our image view that was created in newView method. Also
+        // cursor is automatically pointing to the right data (it's position is based on the item
+        // position in the grid). So we just take out the string corresponding to poster url and
+        // use Picasso to download image and attach that image to this image view.
 
+        if (cursor != null) {
+            //TODO Assign mapping of columns inside MoviePostersFragment
+            String url = cursor.getString(1);
+
+            Picasso.with(context)
+                    .load(url)
+                    .placeholder(R.drawable.default_preview)
+                    //Adding caching of poster for offline access
+                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    .into((ImageView)view);
+        }
+    }
 }
