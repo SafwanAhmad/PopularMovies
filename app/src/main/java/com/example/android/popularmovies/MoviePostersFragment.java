@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -30,6 +31,13 @@ public class MoviePostersFragment extends Fragment implements LoaderManager.Load
 
     //The reference to the adapter connected to the grid view
     ImageAdapter mImageAdapter = null;
+
+    //Device is single pane or two pane
+    private boolean mTwoPane = false;
+
+    //Key for scroll position
+    private final static String LAST_SCROLL_POSITION_KEY = "lastscrollposition";
+    private int mLastScrollPosition = GridView.INVALID_POSITION;
 
     //Parent activity to which this fragment is attached
     private OnGridItemClickedListener mListener;
@@ -66,6 +74,11 @@ public class MoviePostersFragment extends Fragment implements LoaderManager.Load
         // Required empty public constructor
     }
 
+    //Setter to set the device type (single pane/ dual pane)
+    public void setTypeOfDevice(boolean twoPane) {
+        mTwoPane = twoPane;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +107,11 @@ public class MoviePostersFragment extends Fragment implements LoaderManager.Load
         // Inflate the layout for this fragment
         View fragmentMoviePosters = inflater.inflate(R.layout.fragment_movie_posters, container, false);
 
+        //Check if there exists some scroll position from last state
+        if (savedInstanceState != null && savedInstanceState.containsKey(LAST_SCROLL_POSITION_KEY)) {
+            mLastScrollPosition = savedInstanceState.getInt(LAST_SCROLL_POSITION_KEY);
+        }
+
         //Create the adapter without the cursor
         mImageAdapter = new ImageAdapter(getActivity(), null, 0);
 
@@ -112,6 +130,9 @@ public class MoviePostersFragment extends Fragment implements LoaderManager.Load
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 String movieId = cursor.getString(COLUMN_ID);
                 onPosterClicked(movieId);
+
+                //Also save this scroll position
+                mLastScrollPosition = position;
             }
         });
 
@@ -121,6 +142,15 @@ public class MoviePostersFragment extends Fragment implements LoaderManager.Load
     public void onPosterClicked(String movieId) {
         if (mListener != null) {
             mListener.onMoviePosterClicked(movieId);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (mLastScrollPosition != GridView.INVALID_POSITION) {
+            outState.putInt(LAST_SCROLL_POSITION_KEY, mLastScrollPosition);
         }
     }
 
@@ -190,6 +220,27 @@ public class MoviePostersFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mImageAdapter.swapCursor((Cursor) data);
+
+        //Restore the last scroll position if one exists
+        if (mLastScrollPosition != GridView.INVALID_POSITION) {
+            //Find out the grid view
+            //Notice that we are finding fragment instead of grid view as grid view is attached
+            //directly to fragment without a container(Frame Layout)
+            GridView gridView = (GridView) getView().findViewById(R.id.main_grid_view);
+            gridView.smoothScrollToPosition(mLastScrollPosition);
+
+            //Also if it is a two pane device then perform click on this item
+            if(mTwoPane == true)
+            {
+                selectItemFromList(mLastScrollPosition);
+            }
+        }
+
+        //Else perform click on first item if two pane is supported
+        else if(mTwoPane == true)
+        {
+            selectItemFromList(0);
+        }
     }
 
     @Override
@@ -207,6 +258,23 @@ public class MoviePostersFragment extends Fragment implements LoaderManager.Load
         );
 
         return sortingOrder;
+    }
+
+    //Helper method to perform a click on a poster programmatically.
+    private void selectItemFromList(final int position) {
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                //Get the reference to the grid view
+                //Notice that we are finding fragment instead of grid view as grid view is attached
+                //directly to fragment without a container(Frame Layout)
+                GridView gridView = (GridView) getView().findViewById(R.id.main_grid_view);
+                //Perform a click
+                gridView.performItemClick(gridView,
+                        position,
+                        gridView.getItemIdAtPosition(position));
+            }
+        });
     }
 
     /**
