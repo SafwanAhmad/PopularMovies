@@ -27,10 +27,10 @@ import java.net.URL;
  * This includes movie running time, videos/trailers, and reviews. For that we again run a background async
  * task.
  * In order to fetch movie videos and reviews in a single call we use the following url:
- *
+ * <p>
  * <a href="https://api.themoviedb.org/3/movie/movieId?api_key=key&append_to_response=videos,reviews">
- *     https://api.themoviedb.org/3/movie/movieId?api_key=key&append_to_response=videos,reviews</a>
- *
+ * https://api.themoviedb.org/3/movie/movieId?api_key=key&append_to_response=videos,reviews</a>
+ * <p>
  * Created by safwanx on 11/11/16.
  */
 public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
@@ -44,8 +44,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
     private int movieId;
 
     //Define an interface used as a callback to share the result
-    public interface DownloadComplete
-    {
+    public interface DownloadComplete {
         public void onMovieDetailAvailable(MovieDetails movieDetails);
     }
 
@@ -70,8 +69,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
         //https://api.themoviedb.org/3/movie/157336?api_key={api_key}&
         //&append_to_response=videos,reviews
 
-        try
-        {
+        try {
             Uri.Builder builder = new Uri.Builder();
 
             final String SCHEME = "https";
@@ -80,7 +78,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
             final String CONTENT_TYPE = "movie";
             final String API_KEY_PARAM = "api_key";
             final String RESPONSE_STRING_KEY = "append_to_response";
-            final String[] RESPONSE_STRING = {"videos","reviews"};
+            final String[] RESPONSE_STRING = {"videos", "reviews"};
 
             Uri uri = builder.scheme(SCHEME)
                     .authority(AUTHORITY)
@@ -88,7 +86,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
                     .appendPath(CONTENT_TYPE)
                     .appendPath(String.valueOf(movieId))
                     .appendQueryParameter(API_KEY_PARAM, BuildConfig.OPEN_MOVIE_API_KEY)
-                    .appendQueryParameter(RESPONSE_STRING_KEY, RESPONSE_STRING[0]+","+RESPONSE_STRING[1])
+                    .appendQueryParameter(RESPONSE_STRING_KEY, RESPONSE_STRING[0] + "," + RESPONSE_STRING[1])
                     .build();
 
             URL url = new URL(uri.toString());
@@ -132,30 +130,21 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
             //Close the data stream
             inputStream.close();
 
-        }
-        catch (IOException iExp)
-        {
+        } catch (IOException iExp) {
             return null;
-        }
-        catch (JSONException jEx)
-        {
+        } catch (JSONException jEx) {
             return null;
-        }
-        finally {
+        } finally {
             //Close the streams
-            if(bufferedReader != null)
-            {
+            if (bufferedReader != null) {
                 try {
                     bufferedReader.close();
-                }
-                catch (IOException iEx)
-                {
+                } catch (IOException iEx) {
                     Log.e(LOG_TAG, "Error closing stream", iEx);
                 }
             }
 
-            if(httpURLConnection != null)
-            {
+            if (httpURLConnection != null) {
                 httpURLConnection.disconnect();
             }
 
@@ -172,7 +161,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
         final String MOVIE_VIDEOS = "videos";
         final String MOVIE_REVIEWS = "reviews";
 
-        String basePath = ((Fragment)listener).getActivity().getString(R.string.poster_base_path);
+        String basePath = ((Fragment) listener).getActivity().getString(R.string.poster_base_path);
 
 
         //Create a JSON object
@@ -197,7 +186,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
         //Start adding videos to list
         String baseVideoUrl = ((Fragment) listener).getActivity().getString(R.string.base_video_url);
 
-        for(int i = 0; i < arrayVideos.length(); i++) {
+        for (int i = 0; i < arrayVideos.length(); i++) {
             //Get the Json object
             JSONObject videoDetails = arrayVideos.getJSONObject(i);
             //Take out the video key
@@ -205,7 +194,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
 
             Uri.Builder builder = new Uri.Builder();
             builder.encodedPath(baseVideoUrl);
-            builder.appendQueryParameter("v",videoKey);
+            builder.appendQueryParameter("v", videoKey);
 
             //Add complete url to list
             newMovieDetails.addVideoToList(builder.toString());
@@ -227,8 +216,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
     }
 
     //Helper method to update the value of running time for a movie in database.
-    private int updateDatabase(String value)
-    {
+    private int updateDatabase(String value) {
         int rowUpdated = 0;
 
         Context context = ((Fragment) listener).getContext();
@@ -248,7 +236,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
             //Create a new content value
             values.put(MovieContract.Popular.COLUMN_MOVIE_RUNNING_TIME, value);
             //Update the running time in the database
-            rowUpdated = ((Fragment)listener).getContext().getContentResolver().update(itemUri,
+            rowUpdated = ((Fragment) listener).getContext().getContentResolver().update(itemUri,
                     values,
                     null,
                     null
@@ -260,7 +248,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
             //Create a new content value
             values.put(MovieContract.TopRated.COLUMN_MOVIE_RUNNING_TIME, value);
             //Update the running time in the database
-            rowUpdated = ((Fragment)listener).getContext().getContentResolver().update(itemUri,
+            rowUpdated = ((Fragment) listener).getContext().getContentResolver().update(itemUri,
                     values,
                     null,
                     null
@@ -272,7 +260,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
             //Create a new content value
             values.put(MovieContract.Favorite.COLUMN_MOVIE_RUNNING_TIME, value);
             //Update the running time in the database
-            rowUpdated = ((Fragment)listener).getContext().getContentResolver().update(itemUri,
+            rowUpdated = ((Fragment) listener).getContext().getContentResolver().update(itemUri,
                     values,
                     null,
                     null
@@ -290,8 +278,7 @@ public class GetMovieDetails extends AsyncTask<Integer, Void, MovieDetails> {
         try {
             //Update the movie information at listener's end
             listener.onMovieDetailAvailable(movieData);
-        }
-        catch (NullPointerException nEx) {
+        } catch (NullPointerException nEx) {
             Log.w(LOG_TAG, "No listener found!");
         }
     }

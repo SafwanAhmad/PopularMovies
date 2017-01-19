@@ -22,7 +22,7 @@ public class DetailActivity extends AppCompatActivity implements MovieDetailFrag
 
         //This activity is launched via intent when device doesn't
         //support two pane UI
-        if(savedInstanceState ==null) {
+        if (savedInstanceState == null) {
             Bundle id = new Bundle();
             id.putString(MovieDetailFragment.MOVIE_ID_KEY, getIntent().getStringExtra(MOVIE_ID_KEY));
 
@@ -59,7 +59,7 @@ public class DetailActivity extends AppCompatActivity implements MovieDetailFrag
 
     @Override
     public void onMovieDetailsUpdated() {
-        final FragmentTransaction ft =  getSupportFragmentManager().beginTransaction();
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(MOVIE_DETAIL_FRAG_TAG);
 
         ft.detach(fragment).attach(fragment).commit();

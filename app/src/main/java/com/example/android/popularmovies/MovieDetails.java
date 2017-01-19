@@ -19,8 +19,7 @@ public class MovieDetails {
 
     //Note: Values numberOfVideos and numberOfReviews can be zero, hence
     //No data will be there but a zero size array would be there.
-    public MovieDetails(int numberOfVideos, int numberOfReviews)
-    {
+    public MovieDetails(int numberOfVideos, int numberOfReviews) {
         mReviewsIndex = mVideosIndex = -1;
         mMovieReviews = new MovieReviews[numberOfReviews];
         mVideos = new String[numberOfVideos];
@@ -37,8 +36,7 @@ public class MovieDetails {
     }
 
     //Method to retrieve review Author information
-    public String getMovieReviewAuthor(int position)
-    {
+    public String getMovieReviewAuthor(int position) {
         return (mMovieReviews.length == 0 ? null : mMovieReviews[position].getmReviewAuthor());
     }
 
@@ -63,8 +61,7 @@ public class MovieDetails {
     }
 
     //Method to retrieve number of videos available
-    public int getNumberOfVideos()
-    {
+    public int getNumberOfVideos() {
         return mVideos.length;
     }
 
@@ -74,8 +71,7 @@ public class MovieDetails {
     }
 
     //Special data structure to hold movie reviews
-    private class MovieReviews
-    {
+    private class MovieReviews {
         private String mReviewAuthor;
         private String mReview;
 

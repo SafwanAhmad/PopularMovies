@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity
             mTwoPane = true;
 
             //Attach the detail fragment to the blank container if state is not being restored
-            if(savedInstanceState == null) {
+            if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.container_fragment_movie_details,
                         new MovieDetailFragment(),
                         MOVIE_DETAIL_FRAG_TAG).commit();

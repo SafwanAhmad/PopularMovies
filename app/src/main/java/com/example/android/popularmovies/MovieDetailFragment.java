@@ -194,7 +194,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         String sortingOrder = getSortingOrder();
 
         //Check if some movie poster is clicked (in case of two pane UI fragment is attached)
-        if(mMovieID != null) {
+        if (mMovieID != null) {
             if (sortingOrder.equals(getString(R.string.pref_sorting_popular))) {
                 //Initialize loader
                 getLoaderManager().initLoader(loaderPopularId, null, this);
@@ -250,8 +250,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         mMovieTrailerNumber.clearAnimation();
         mMovieVideoPrevious.clearAnimation();
         mMovieReview.clearAnimation();
-
-        //TODO Where should the viewData should be made null?
+        //Where should the viewData should be made null?
     }
 
     @Override
@@ -269,8 +268,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         CursorLoader cursorLoader = null;
 
-        switch (id)
-        {
+        switch (id) {
             case loaderPopularId: {
                 //Build uri corresponding to single item, which will be converted in the appropriate
                 //query by our content provider.
@@ -321,7 +319,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        if(data != null && data.moveToFirst()) {
+        if (data != null && data.moveToFirst()) {
             //In this case we don't have any adapter to work for us. So have to update views.
             //Update the title
             mTitleCurrent = data.getString(COLUMN_MOVIE_TITLE);
@@ -424,11 +422,9 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         viewData = movieDetails;
 
         //Also if this movie is not in the favorite list reset color filter
-        if(isFavorite() == false) {
+        if (isFavorite() == false) {
             setColorFilter(null);
-        }
-        else
-        {
+        } else {
             setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY));
         }
 
@@ -481,14 +477,14 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
     private void setupVideoSection() {
 
         //If there are no videos for this movie then don't make any view visible
-        if(viewData.getNumberOfVideos() != 0) {
+        if (viewData.getNumberOfVideos() != 0) {
             mPlayMovieVideo.setVisibility(Button.VISIBLE);
 
             mMovieTrailerNumber.setText(getString(R.string.trailer_text) + " " + (++mTrailerSequenceNumber + 1));
             mMovieTrailerNumber.setVisibility(View.VISIBLE);
 
             //If there are more than one videos then make this visible
-            if(viewData.getNumberOfVideos() > 1) {
+            if (viewData.getNumberOfVideos() > 1) {
                 mMovieVideoNext.setVisibility(View.VISIBLE);
             }
             mMovieReviewSeparator.setVisibility(View.VISIBLE);
@@ -500,7 +496,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
     private void setUpReviewSection() {
 
         //If there are no reviews for the movie then don't make any view visible
-        if(viewData.getNumberOfReviews() != 0) {
+        if (viewData.getNumberOfReviews() != 0) {
             mMovieReviewsTitle.setVisibility(View.VISIBLE);
 
             mMovieReview.setText(viewData.getMovieReview(++mReviewSequenceNumber));
@@ -510,7 +506,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
             mMovieReviewer.setVisibility(View.VISIBLE);
 
             //If there are more than one reviews then make this visible
-            if(viewData.getNumberOfReviews() > 1) {
+            if (viewData.getNumberOfReviews() > 1) {
                 mReviewNext.setVisibility(View.VISIBLE);
             }
         }
@@ -530,10 +526,8 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
     private void setColorFilter(PorterDuffColorFilter filter) {
         Drawable[] imageDrawable = mMarkFavorite.getCompoundDrawables();
 
-        for(Drawable drawable : imageDrawable)
-        {
-            if(drawable != null)
-            {
+        for (Drawable drawable : imageDrawable) {
+            if (drawable != null) {
                 drawable.setColorFilter(filter);
             }
         }
@@ -565,7 +559,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
             break;
 
             case R.id.play_movie_video: {
-                //TODO Launch an intent to display video on youtube
+                //Launch an intent to display video on youtube
                 Intent videoLaunch = new Intent();
                 videoLaunch.setAction(Intent.ACTION_VIEW);
                 videoLaunch.setData(Uri.parse(viewData.getMovieVideo(mTrailerSequenceNumber)));
@@ -641,14 +635,12 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
             }
             break;
 
-            case R.id.mark_favorite:
-            {
+            case R.id.mark_favorite: {
                 //Check if the movie is in the database or not
                 boolean isAdded = isFavorite();
 
                 //If the movie is already added in the database then remove it
-                if(isAdded)
-                {
+                if (isAdded) {
                     Uri itemUri = MovieContract.Favorite.CONTENT_URI.buildUpon().appendPath(mMovieID).build();
                     //Delete this movie from database with the help of content resolver
                     int rowsDeleted = getContext().getContentResolver().delete(itemUri,
@@ -662,8 +654,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
                 }
                 //Add to favorite list if not already added
                 //Find out the movie id
-                if(mMovieID != null && !isAdded)
-                {
+                if (mMovieID != null && !isAdded) {
                     //We need to insert this movie information into favorite table
                     String movieId = mMovieID;
                     String title = mTitleCurrent;
@@ -694,9 +685,8 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
     }
 
     //Helper method
-    private boolean isFavorite()
-    {
-        if(mMovieID != null) {
+    private boolean isFavorite() {
+        if (mMovieID != null) {
             //Build the uri to select a row(s).
             Uri itemUri = MovieContract.Favorite.CONTENT_URI.buildUpon().appendPath(mMovieID).build();
 
@@ -705,8 +695,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
                     null,
                     null,
                     null);
-            if(cursor != null && cursor.moveToFirst())
-            {
+            if (cursor != null && cursor.moveToFirst()) {
                 return true;
             }
         }

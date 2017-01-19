@@ -39,11 +39,9 @@ public class GetMoviesData extends AsyncTask<Void, Void, Void> {
     public Context listener = null;
 
 
-    //TODO Initially we are retrieving the first page. Later we
-    //TODO will add support for more pages to be retrieved.
-    //TODO Next step will be to provide user the option to
-    //TODO navigate back and forth.
-    //TODO Finally a infinite scrolling support will be added.
+    //Initially we are retrieving the first page. Later we
+    //will add support for more pages to be retrieved.
+
     @Override
     protected Void doInBackground(Void... params) {
 

@@ -147,8 +147,7 @@ public class MoviePostersFragment extends Fragment implements LoaderManager.Load
 
         CursorLoader cursorLoader = null;
 
-        switch (id)
-        {
+        switch (id) {
             case loaderPopularId: {
                 cursorLoader = new CursorLoader(getContext(),
                         MovieContract.Popular.CONTENT_URI,
@@ -183,7 +182,6 @@ public class MoviePostersFragment extends Fragment implements LoaderManager.Load
                 throw new IllegalArgumentException("Loader id does not match");
             }
         }
-
 
 
         return cursorLoader;
