@@ -2,15 +2,19 @@
     grid of movies posters. This will appear as the main page of the
     Popular Movie app.-->
 
-<GridView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-
-    android:id="@+id/main_grid_view"
-    android:layout_height="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:numColumns="auto_fit"
-    android:verticalSpacing="@dimen/fragment_movie_posters_main_grid_view_vertical_spacing"
-    android:horizontalSpacing="@dimen/fragment_movie_posters_main_grid_view_horizontal_spacing"
-    android:gravity="center">
+    android:layout_height="match_parent">
 
-</GridView>
+    <GridView
+
+        android:id="@+id/main_grid_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:horizontalSpacing="@dimen/fragment_movie_posters_main_grid_view_horizontal_spacing"
+        android:numColumns="auto_fit"
+        android:verticalSpacing="@dimen/fragment_movie_posters_main_grid_view_vertical_spacing">
+
+    </GridView>
+</FrameLayout>
