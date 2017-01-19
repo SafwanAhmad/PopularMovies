@@ -153,6 +153,7 @@
                     android:layout_centerInParent="true"
                     android:text="Trailer 1"
                     android:textSize="@dimen/fragment_movie_detail_movie_trailer_number_textSize"
+                    android:textStyle="bold"
                     android:visibility="invisible" />
 
 
@@ -197,6 +198,7 @@
                 android:gravity="center_horizontal"
                 android:text="@string/movie_reviews"
                 android:textSize="@dimen/fragment_movie_detail_review_section_title"
+                android:textStyle="bold"
                 android:visibility="invisible"/>
 
             <!--Layout containing movie reviews-->
@@ -210,6 +212,7 @@
                     android:id="@+id/movie_reviewer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textSize="@dimen/fragment_movie_detail_movie_reviewer"
                     android:textStyle="bold"/>
 
                 <!--Text view containing the review from a reviewer-->
@@ -217,6 +220,7 @@
                     android:id="@+id/movie_review"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textSize="@dimen/fragment_movie_detail_movie_review"
                     android:layout_below="@id/movie_reviewer"/>
 
                 <!--Button used as separator-->

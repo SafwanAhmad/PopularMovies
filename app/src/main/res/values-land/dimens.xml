@@ -26,7 +26,9 @@
 
     <dimen name="movie_description_layout_margin_left">8dp</dimen>
     <dimen name="movie_description_layout_width">0dp</dimen>
-    <dimen name="movie_description_text_size">22sp</dimen>
+    <dimen name="movie_description_text_size">20sp</dimen>
 
+    <dimen name="fragment_movie_detail_movie_reviewer">18sp</dimen>
+    <dimen name="fragment_movie_detail_movie_review">18sp</dimen>
 
 </resources>
