@@ -63,6 +63,10 @@ public class MainActivity extends AppCompatActivity
             mTwoPane = false;
         }
 
+        //Inform movie poster fragment about mTwoPane
+        Fragment posterFragment = (Fragment) getSupportFragmentManager().findFragmentById(R.id.fragment_MoviePosters);
+        ((MoviePostersFragment)posterFragment).setTypeOfDevice(mTwoPane);
+
         //Also start the task to download movie poster in the background if the
         //current sort order is popular or top rated
         if (!mSortingOrder.equals(getString(R.string.pref_sorting_favorite))) {
