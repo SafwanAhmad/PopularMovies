@@ -1,6 +1,7 @@
 package com.example.android.popularmovies;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -102,7 +103,17 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
 
 
     public static final String MOVIE_ID_KEY = "MOVIE_ID";
+
+    //These value are updated by loader, and can be used to set in database if favorite button is
+    //clicked
     private String mMovieID = null;
+    private String mTitleCurrent = null;
+    private String mPosterPathCurrent = null;
+    private String mReleaseDateCurrent = null;
+    private String mRunningTimeCurrent = null;
+    private String mUserRatingCurrent = null;
+    private String mMoviePlotCurrent = null;
+
 
     //Reference to the async task object
     GetMovieDetails mGetMovieDetails = null;
@@ -217,87 +228,8 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         //Attach click listener for buttons
         setClickListener();
 
-        //if the view data is available them update them
-        /*if (viewData != null) {
-            //Update the title
-            mTitle.setText(viewData.getmMovieTitle());
-
-            //Also make it visible
-            mTitle.setVisibility(Button.VISIBLE);
-
-            //Update the poster
-
-            //Calculate the height(in pixels) for the image for different devices.
-            Resources resources = getActivity().getResources();
-            float heightPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 280, resources.getDisplayMetrics());
-
-            mPoster.setAdjustViewBounds(true);
-
-            mPoster.setMaxHeight((int) heightPx);
-
-            mPoster.setScaleType(ImageView.ScaleType.FIT_XY);
-
-            Picasso.with(getActivity())
-                    .load(viewData.getmMoviePosterPath())
-                    .placeholder(R.drawable.default_preview)
-                    .into(mPoster);
-
-            //Update the year of release
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-            Date releaseDate = null;
-
-            try {
-                releaseDate = (Date) dateFormat.parse(viewData.getmYearOfRelease());
-            } catch (ParseException pEx) {
-
-            }
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(releaseDate);
-
-
-            mReleaseDate.setText(String.valueOf(calendar.get(Calendar.YEAR)));
-
-            //Update the running time
-            mRunningTime.setText(getActivity().getString(R.string.running_time, viewData.getmRunningTime()));
-
-            //Update the vote average
-            mVoteAverage.setText(getActivity().getString(R.string.movie_rating, viewData.getmVoteAverage()));
-
-            //Update the Description
-            mMoviePlot.setText(viewData.getmMoviePlot());
-
-            //Set the visibility for the favorite button
-            //Also if this movie is not in the favorite list reset color filter
-            if(isFavorite(viewData.getmMovieId()) == true) {
-                setColorFilter(null);
-            }
-            else
-            {
-                setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY));
-            }
-
-            mMarkFavorite.setVisibility(Button.VISIBLE);
-
-            //Set the visibility for the video separator
-            mMovieVideoSeparator.setVisibility(View.VISIBLE);
-
-            //Set up views for video section
-            setupVideoSection();
-
-            //Set up views for review section
-            setUpReviewSection();
-        }*/
-
         return rootView;
 
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed() {
-        if (mListener != null) {
-            mListener.onMovieDetailsUpdated();
-        }
     }
 
     @Override
@@ -392,7 +324,8 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         if(data != null && data.moveToFirst()) {
             //In this case we don't have any adapter to work for us. So have to update views.
             //Update the title
-            mTitle.setText(data.getString(COLUMN_MOVIE_TITLE));
+            mTitleCurrent = data.getString(COLUMN_MOVIE_TITLE);
+            mTitle.setText(mTitleCurrent);
             //Also make it visible
             mTitle.setVisibility(Button.VISIBLE);
 
@@ -416,14 +349,17 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
             boolean isConnected = networkInfo != null &&
                     networkInfo.isConnectedOrConnecting();
 
+            //Save the poster path so that if user clicks favorite button we can write this
+            //path
+            mPosterPathCurrent = data.getString(COLUMN_MOVIE_POSTER_PATH);
             if (isConnected) {
                 Picasso.with(getActivity())
-                        .load(data.getString(COLUMN_MOVIE_POSTER_PATH))
+                        .load(mPosterPathCurrent)
                         .placeholder(R.drawable.default_preview)
                         .into(mPoster);
             } else {
                 Picasso.with(getActivity())
-                        .load(data.getString(COLUMN_MOVIE_POSTER_PATH))
+                        .load(mPosterPathCurrent)
                         .placeholder(R.drawable.default_preview)
                         .networkPolicy(NetworkPolicy.OFFLINE)
                         .into(mPoster);
@@ -434,7 +370,8 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
             Date releaseDate = null;
 
             try {
-                releaseDate = (Date) dateFormat.parse(data.getString(COLUMN_MOVIE_RELEASE_DATE));
+                mReleaseDateCurrent = data.getString(COLUMN_MOVIE_RELEASE_DATE);
+                releaseDate = (Date) dateFormat.parse(mReleaseDateCurrent);
             } catch (ParseException pEx) {
 
             }
@@ -445,13 +382,16 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
             mReleaseDate.setText(String.valueOf(calendar.get(Calendar.YEAR)));
 
             //Update the running time
-            mRunningTime.setText(getActivity().getString(R.string.running_time, data.getString(COLUMN_MOVIE_RUNNING_TIME)));
+            mRunningTimeCurrent = data.getString(COLUMN_MOVIE_RUNNING_TIME);
+            mRunningTime.setText(getActivity().getString(R.string.running_time, mRunningTimeCurrent));
 
             //Update the vote average
-            mVoteAverage.setText(getActivity().getString(R.string.movie_rating, data.getString(COLUMN_MOVIE_USER_RATING)));
+            mUserRatingCurrent = data.getString(COLUMN_MOVIE_USER_RATING);
+            mVoteAverage.setText(getActivity().getString(R.string.movie_rating, mUserRatingCurrent));
 
             //Update the Description
-            mMoviePlot.setText(data.getString(COLUMN_MOVIE_PLOT));
+            mMoviePlotCurrent = data.getString(COLUMN_MOVIE_PLOT);
+            mMoviePlot.setText(mMoviePlotCurrent);
 
         }
     }
@@ -476,13 +416,15 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
     }
 
 
+    //This is a callback function, that is called by async task (launched on a separate thread)
+    //when it is ready with the results.
     public void onMovieDetailAvailable(MovieDetails movieDetails) {
 
         //Update the data for the fragment
         viewData = movieDetails;
 
         //Also if this movie is not in the favorite list reset color filter
-        if(isFavorite(mMovieID) == false) {
+        if(isFavorite() == false) {
             setColorFilter(null);
         }
         else
@@ -701,16 +643,73 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
 
             case R.id.mark_favorite:
             {
+                //Check if the movie is in the database or not
+                boolean isAdded = isFavorite();
+
+                //If the movie is already added in the database then remove it
+                if(isAdded)
+                {
+                    Uri itemUri = MovieContract.Favorite.CONTENT_URI.buildUpon().appendPath(mMovieID).build();
+                    //Delete this movie from database with the help of content resolver
+                    int rowsDeleted = getContext().getContentResolver().delete(itemUri,
+                            null,
+                            null);
+
+                    if (rowsDeleted != 0) {
+                        //Update the favorite button drawable color
+                        setColorFilter(null);
+                    }
+                }
                 //Add to favorite list if not already added
-                //TODO viewData has all the data for a movie which can be used
-                setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY));
+                //Find out the movie id
+                if(mMovieID != null && !isAdded)
+                {
+                    //We need to insert this movie information into favorite table
+                    String movieId = mMovieID;
+                    String title = mTitleCurrent;
+                    String posterPath = mPosterPathCurrent;
+                    String releaseDate = mReleaseDateCurrent;
+                    String runningTime = mRunningTimeCurrent;
+                    String userRating = mUserRatingCurrent;
+                    String moviePlot = mMoviePlotCurrent;
+
+                    ContentValues values = new ContentValues();
+                    values.put(MovieContract.Favorite._ID, movieId);
+                    values.put(MovieContract.Favorite.COLUMN_MOVIE_TITLE, title);
+                    values.put(MovieContract.Favorite.COLUMN_MOVIE_POSTER_PATH, posterPath);
+                    values.put(MovieContract.Favorite.COLUMN_MOVIE_RUNNING_TIME, runningTime);
+                    values.put(MovieContract.Favorite.COLUMN_MOVIE_RELEASE_DATE, releaseDate);
+                    values.put(MovieContract.Favorite.COLUMN_MOVIE_USER_RATING, userRating);
+                    values.put(MovieContract.Favorite.COLUMN_MOVIE_PLOT, moviePlot);
+
+                    getContext().getContentResolver().insert(
+                            MovieContract.Favorite.CONTENT_URI,
+                            values
+                    );
+                    //Change the color of favorite button drawable
+                    setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY));
+                }
             }
         }
     }
 
     //Helper method
-    private boolean isFavorite(String movieId)
+    private boolean isFavorite()
     {
+        if(mMovieID != null) {
+            //Build the uri to select a row(s).
+            Uri itemUri = MovieContract.Favorite.CONTENT_URI.buildUpon().appendPath(mMovieID).build();
+
+            Cursor cursor = getContext().getContentResolver().query(itemUri,
+                    new String[]{MovieContract.Favorite._ID},
+                    null,
+                    null,
+                    null);
+            if(cursor != null && cursor.moveToFirst())
+            {
+                return true;
+            }
+        }
         return false;
     }
 
