@@ -229,15 +229,11 @@ public class MoviePostersFragment extends Fragment implements LoaderManager.Load
             GridView gridView = (GridView) getView().findViewById(R.id.main_grid_view);
             gridView.smoothScrollToPosition(mLastScrollPosition);
 
-            //Also if it is a two pane device then perform click on this item
-            if(mTwoPane == true)
-            {
-                selectItemFromList(mLastScrollPosition);
-            }
         }
 
         //Else perform click on first item if two pane is supported
-        else if(mTwoPane == true)
+        //And there was no item selected
+        else if(mTwoPane == true && mLastScrollPosition == GridView.INVALID_POSITION)
         {
             selectItemFromList(0);
         }
@@ -261,6 +257,16 @@ public class MoviePostersFragment extends Fragment implements LoaderManager.Load
     }
 
     //Helper method to perform a click on a poster programmatically.
+    //Note: If some movie poster was selected before rotation then
+    //saveInstanceState will be restored by android. So this will
+    //work when app is launch and there is no valid position then
+    //first poster is automatically clicked.
+    //As the click operation starts detail fragment and which launches
+    //async task to get details then running time is inserted for that
+    //movie. And a notification is sent to all Loader's those registered
+    //for notification during prior query() command.
+    //The loaders attached will in turn call onLoadFinished(). So this
+    //whole cycle keep repeating.(Bug)
     private void selectItemFromList(final int position) {
         new Handler().post(new Runnable() {
             @Override
