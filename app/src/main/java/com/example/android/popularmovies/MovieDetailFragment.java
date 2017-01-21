@@ -20,10 +20,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.preference.PreferenceManager;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
@@ -45,6 +50,8 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static android.content.Intent.ACTION_SEND;
 
 
 /**
@@ -103,6 +110,9 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
 
 
     public static final String MOVIE_ID_KEY = "MOVIE_ID";
+
+    //Reference to provider for share intent
+    ShareActionProvider mShareActionProvider = null;
 
     //These value are updated by loader, and can be used to set in database if favorite button is
     //clicked
@@ -182,6 +192,8 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
 
     public MovieDetailFragment() {
         // Required empty public constructor
+        //This fragment has menu items of its own
+        setHasOptionsMenu(true);
     }
 
     //The initialization of loaders should be done here, so that we are confirmed that parent
@@ -230,6 +242,27 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
 
         return rootView;
 
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.menu_detail_fragment, menu);
+
+        //Find the menu item we want to attach
+        MenuItem shareItem = (MenuItem) menu.findItem(R.id.action_share);
+
+        //Get a reference to the ShareActionProvider by calling getActionProvider()
+        // and passing the share action's MenuItem.
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
+
+        //Check if the async task is done loading and videos url are available,
+        //then we can set the share intent
+        if (viewData != null) {
+            mShareActionProvider.setShareIntent(createVideoShareIntent());
+        }
     }
 
     @Override
@@ -438,6 +471,13 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
 
         //Set up views for review section
         setUpReviewSection();
+
+        //At this place we check if a share intent provider exists, then we need to update
+        //the share intent now
+        if(mShareActionProvider != null)
+        {
+            mShareActionProvider.setShareIntent(createVideoShareIntent());
+        }
 
         //Forward the update to parent activity
         //Activity parentActivity = getActivity();
@@ -684,7 +724,7 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         }
     }
 
-    //Helper method
+    //Helper method to find out if a movie exists in favorite table or not
     private boolean isFavorite() {
         if (mMovieID != null) {
             //Build the uri to select a row(s).
@@ -712,5 +752,21 @@ public class MovieDetailFragment extends Fragment implements GetMovieDetails.Dow
         );
 
         return sortingOrder;
+    }
+
+    //Helper method to create a share intent for sharing the first video url
+    private Intent createVideoShareIntent()
+    {
+        Intent videoIntent = new Intent(ACTION_SEND);
+        videoIntent.setType("text/plain");
+
+        //Some movies do not have any video
+        if(viewData.getNumberOfVideos() != 0) {
+            videoIntent.putExtra(Intent.EXTRA_TEXT, viewData.getMovieVideo(0));
+        }
+        else {
+            videoIntent.putExtra(Intent.EXTRA_TEXT, "No Videos For this movie!");
+        }
+        return videoIntent;
     }
 }
