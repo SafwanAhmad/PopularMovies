@@ -221,21 +221,23 @@ public class MoviePostersFragment extends Fragment implements LoaderManager.Load
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mImageAdapter.swapCursor((Cursor) data);
 
-        //Restore the last scroll position if one exists
-        if (mLastScrollPosition != GridView.INVALID_POSITION) {
-            //Find out the grid view
-            //Notice that we are finding fragment instead of grid view as grid view is attached
-            //directly to fragment without a container(Frame Layout)
-            GridView gridView = (GridView) getView().findViewById(R.id.main_grid_view);
-            gridView.smoothScrollToPosition(mLastScrollPosition);
+        //Check if there is some data available only then go further
+        if(data != null && data.getCount() != 0) {
+            //Restore the last scroll position if one exists
+            if (mLastScrollPosition != GridView.INVALID_POSITION) {
+                //Find out the grid view
+                //Notice that we are finding fragment instead of grid view as grid view is attached
+                //directly to fragment without a container(Frame Layout)
+                GridView gridView = (GridView) getView().findViewById(R.id.main_grid_view);
+                gridView.smoothScrollToPosition(mLastScrollPosition);
 
-        }
+            }
 
-        //Else perform click on first item if two pane is supported
-        //And there was no item selected
-        else if(mTwoPane == true && mLastScrollPosition == GridView.INVALID_POSITION)
-        {
-            selectItemFromList(0);
+            //Else perform click on first item if two pane is supported
+            //And there was no item selected
+            else if (mTwoPane == true && mLastScrollPosition == GridView.INVALID_POSITION) {
+                selectItemFromList(0);
+            }
         }
     }
 
